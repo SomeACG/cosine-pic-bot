@@ -4,6 +4,10 @@
   "description": "发图的",
   "scripts": {
     "start": "ts-node -r tsconfig-paths/register src/app.ts",
+    "db:init": "npx prisma migrate dev --name init",
+    "db:push": "npx prisma db push",
+    "db:migrate": "npx prisma migrate dev",
+    "db:view": "npx prisma studio",
     "lint": "eslint src/**/*.ts --fix",
     "pm2": "pm2 start ecosystem.config.js",
     "pm2:restart": "pm2 restart ecosystem.config.js",
@@ -16,7 +20,9 @@
   "license": "ISC",
   "dependencies": {
     "@aws-sdk/client-s3": "^3.490.0",
+    "@prisma/client": "5.13.0",
     "aws-sdk": "^2.1535.0",
+    "dayjs": "^1.11.11",
     "dotenv": "^16.3.1",
     "pino": "^8.17.2",
     "pino-pretty": "^10.3.1",
@@ -32,6 +38,7 @@
     "eslint": "^8.56.0",
     "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-prettier": "^5.1.3",
-    "prettier": "^3.1.1"
+    "prettier": "^3.1.1",
+    "prisma": "^5.13.0"
   }
 }
