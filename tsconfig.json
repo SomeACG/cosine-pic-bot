@@ -1,0 +1,61 @@
+{
+  "compilerOptions": {
+    // https://www.totaltypescript.com/tsconfig-cheat-sheet
+    "esModuleInterop": true, // 帮助修复 CommonJS 和 ES 模块之间的一些障碍。
+    "skipLibCheck": true, // 跳过 .d.ts 检查文件类型。这对性能很重要，否则将检查所有 node_modules 内容。
+    "target": "ES2022", // 您定位的 JavaScript 版本。为了稳定起见，我建议 es2022 而不是 esnext 。
+    // 允许您导入 .js 和 .json 文件。总是有用的。
+    "allowJs": true,
+    "resolveJsonModule": true, 
+    // 此选项强制 TypeScript 将所有文件视为模块。这有助于避免 'cannot redeclare block-scoped variable' 错误。
+    "moduleDetection": "force",
+    "isolatedModules": true,// 此选项可防止在将模块视为独立文件时不安全的一些 TS 功能。
+    "strict": true,// 启用所有严格的类型检查选项。不可或缺。
+    "noUncheckedIndexedAccess": true, // 防止您在未首先检查数组或对象是否已定义的情况下访问数组或对象。这是防止运行时错误的好方法，确实应该包含在 strict .
+    "noImplicitOverride": true, // 使 override 关键字在类中实际有用。
+    // 使用 tsc 转译代码
+    "module": "CommonJS",
+    "outDir": "dist",
+    "lib": ["es2022"],
+    // 以上为通用配置
+    "baseUrl": "./",
+    "paths": {
+      "@/*": ["./src/*"],
+    }
+  },
+  // "compilerOptions": {
+  //   "target": "ESNext",
+  //   "skipLibCheck": true,
+  //   "sourceMap": true,
+  //   "outDir": "./dist",
+  //   "module": "CommonJS",
+  //   "moduleResolution": "node",
+  //   "removeComments": true,
+  //   "noImplicitAny": true,
+  //   "strictNullChecks": true,
+  //   "strictFunctionTypes": true,
+  //   "noImplicitThis": true,
+  //   "noUnusedLocals": true,
+  //   "noUnusedParameters": true,
+  //   "noImplicitReturns": true,
+  //   "noFallthroughCasesInSwitch": true,
+  //   "allowSyntheticDefaultImports": true,
+  //   "esModuleInterop": true,
+  //   "emitDecoratorMetadata": true,
+  //   "experimentalDecorators": true,
+  //   "resolveJsonModule": true,
+  //   "baseUrl": "./",
+  //   "forceConsistentCasingInFileNames": true,
+  //   "strict": true,
+  //   "paths": {
+  //     "@/*": ["./src/*"]
+  //   }
+  // },
+    "skipLibCheck": true,
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "./src/**/*.ts"
+  ]
+}
