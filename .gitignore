@@ -132,6 +132,7 @@ dist
 
 # else
 downloads/
+temp/
 old/
 .DS_Store
 dev.db

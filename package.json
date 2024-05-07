@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "发图的",
   "scripts": {
-    "start": "ts-node -r tsconfig-paths/register src/app.ts",
+    "start": "ts-node -r tsconfig-paths/register ./src/app.ts --files",
     "db:init": "npx prisma migrate dev --name init",
     "db:push": "npx prisma db push",
     "db:migrate": "npx prisma migrate dev",
@@ -22,6 +22,7 @@
     "@aws-sdk/client-s3": "^3.490.0",
     "@prisma/client": "5.13.0",
     "aws-sdk": "^2.1535.0",
+    "axios": "^1.6.8",
     "dayjs": "^1.11.11",
     "dotenv": "^16.3.1",
     "pino": "^8.17.2",

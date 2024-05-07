@@ -4,12 +4,13 @@
   "extends": ["plugin:prettier/recommended", "prettier", "eslint:recommended"],
   "parserOptions": {
     "ecmaVersion": 2022,
-    "sourceType": "module",
-    "project": "tsconfig.json"
+    "sourceType": "module"
+    // "project": "tsconfig.json"
   },
   "env": {
-    "es6": true,
-    "node": true
+    "node": true,
+    "browser": true,
+    "es2021": true
   },
   "rules": {
     "no-var": "error",
