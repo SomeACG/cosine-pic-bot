@@ -1,6 +1,8 @@
-import { Telegraf } from 'telegraf';
+import { WrapperContext } from '@/bot/wrappers/command-wrapper';
+import { CommandMiddleware } from 'grammy';
 
-const postCommand = Telegraf.command('post', async (ctx) => {
+// admin
+const postCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
   ctx.reply('post!');
-});
+};
 export default postCommand;
