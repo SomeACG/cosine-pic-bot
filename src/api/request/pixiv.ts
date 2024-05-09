@@ -1,20 +1,16 @@
 import { PIXIV_COOKIE } from '@/constants';
+import { PixivAjaxResp } from '@/types/pixiv';
 import axios, { AxiosResponse } from 'axios';
-import { PixivAjaxResp } from '../types';
+import { commonHeaders } from '.';
 
-const commonHeaders = {
-  'accept-language': 'zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7',
-  'user-agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/108.0.0.0 Safari/537.36',
-};
-
-const pixivInstance = axios.create({
+const pixivRequest = axios.create({
   headers: {
     cookie: PIXIV_COOKIE,
     ...commonHeaders,
   },
 });
 
-pixivInstance.interceptors.response.use((response: AxiosResponse<PixivAjaxResp<unknown>>) => {
+pixivRequest.interceptors.response.use((response: AxiosResponse<PixivAjaxResp<unknown>>) => {
   if (response.status != 200) {
     if (response.data.error && response.data.message) {
       throw new Error(response.data.message);
@@ -25,8 +21,4 @@ pixivInstance.interceptors.response.use((response: AxiosResponse<PixivAjaxResp<u
   return response;
 });
 
-export default axios.create({
-  headers: commonHeaders,
-});
-
-export { pixivInstance };
+export default pixivRequest;

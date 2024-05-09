@@ -1,7 +1,7 @@
-import path from 'path';
-import { pixivInstance } from '../request/pixiv';
-import { PixivAjaxResp, PixivIllust, PixivIllustPages } from '../types';
 import { Artist, ImageSize } from '@/constants/types';
+import { PixivAjaxResp, PixivIllust, PixivIllustPages } from '@/types/pixiv';
+import path from 'path';
+import pixivRequest from '../request/pixiv';
 
 export type PixivArtInfo = {
   post_url: string;
@@ -18,12 +18,12 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Pix
   console.log('======= pixiv_id =======\n', pixiv_id);
   const {
     data: { body: illust },
-  } = await pixivInstance.get<PixivAjaxResp<PixivIllust>>('https://www.pixiv.net/ajax/illust/' + pixiv_id);
+  } = await pixivRequest.get<PixivAjaxResp<PixivIllust>>('https://www.pixiv.net/ajax/illust/' + pixiv_id);
 
   console.log('======= illust =======\n', illust);
   const {
     data: { body: illust_pages },
-  } = await pixivInstance.get<PixivAjaxResp<PixivIllustPages>>(`https://www.pixiv.net/ajax/illust/${pixiv_id}/pages?lang=zh`);
+  } = await pixivRequest.get<PixivAjaxResp<PixivIllustPages>>(`https://www.pixiv.net/ajax/illust/${pixiv_id}/pages?lang=zh`);
   if (!illust_pages?.length) return [];
   return illust_pages.map((item) => {
     const { urls, width, height } = item;
@@ -42,7 +42,7 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Pix
     });
 
     const illust_desc = illust.description
-      // Remoie all the html tags in the description
+      // Remove all the html tags in the description
       .replace(/<[^>]+>/g, '');
 
     const artworkInfo: PixivArtInfo = {
