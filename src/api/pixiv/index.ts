@@ -25,7 +25,6 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Pix
     data: { body: illust_pages },
   } = await pixivInstance.get<PixivAjaxResp<PixivIllustPages>>(`https://www.pixiv.net/ajax/illust/${pixiv_id}/pages?lang=zh`);
   if (!illust_pages?.length) return [];
-  console.log('======= illust_pages =======\n', illust_pages);
   return illust_pages.map((item) => {
     const { urls, width, height } = item;
     const size = {
@@ -37,7 +36,7 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Pix
 
       item.tag = item.translation?.en ? item.translation.en : item.tag;
 
-      item.tag = item.tag.replace(/\s/g, '_');
+      item.tag = item.tag.replace(/[\s"']/g, '_');
 
       return item.tag;
     });

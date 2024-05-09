@@ -8,6 +8,9 @@ dependencies:
   '@aws-sdk/client-s3':
     specifier: ^3.490.0
     version: 3.490.0
+  '@napi-rs/image':
+    specifier: ^1.9.2
+    version: 1.9.2
   '@prisma/client':
     specifier: 5.13.0
     version: 5.13.0(prisma@5.13.0)
@@ -667,6 +670,22 @@ packages:
       '@jridgewell/trace-mapping': 0.3.9
     dev: false
 
+  /@emnapi/core@1.1.1:
+    resolution: {integrity: sha512-eu4KjHfXg3I+UUR7vSuwZXpRo4c8h4Rtb5Lu2F7Z4JqJFl/eidquONEBiRs6viXKpWBC3BaJBy68xGJ2j56idw==, tarball: https://registry.npmjs.org/@emnapi/core/-/core-1.1.1.tgz}
+    requiresBuild: true
+    dependencies:
+      tslib: 2.6.2
+    dev: false
+    optional: true
+
+  /@emnapi/runtime@1.1.1:
+    resolution: {integrity: sha512-3bfqkzuR1KLx57nZfjr2NLnFOobvyS0aTszaEGCGqmYMVDRaGvgIZbjGSV/MHSSmLgQ/b9JFHQ5xm5WRZYd+XQ==, tarball: https://registry.npmjs.org/@emnapi/runtime/-/runtime-1.1.1.tgz}
+    requiresBuild: true
+    dependencies:
+      tslib: 2.6.2
+    dev: false
+    optional: true
+
   /@eslint-community/eslint-utils@4.4.0(eslint@8.56.0):
     resolution: {integrity: sha512-1/sA4dwrzBAyeUoQ6oxahHKmrZvsnLCg4RfxW3ZFGGmQkSNQPFNLV9CUEFQP1x9EYXHTo5p6xdhZM1Ne9p/AfA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
@@ -743,6 +762,143 @@ packages:
       '@jridgewell/resolve-uri': 3.1.1
       '@jridgewell/sourcemap-codec': 1.4.15
     dev: false
+
+  /@napi-rs/image-android-arm64@1.9.2:
+    resolution: {integrity: sha512-DQNI06ukKqpF4eogz9zyxfU+GYp11TfDqSNWKmk/IRU2oiB0DEgskuj7ZzaKMPJWFRZjI86V233UrrNRh76h2Q==, tarball: https://registry.npmjs.org/@napi-rs/image-android-arm64/-/image-android-arm64-1.9.2.tgz}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [android]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@napi-rs/image-darwin-arm64@1.9.2:
+    resolution: {integrity: sha512-w+0X87sORbC2uDpH7NAdELOnvzhu3dB19h2oMaD+YIv/+CVXV5eK2PS3zkRgMLCinVtFOZFZK3dFbHU3kncCRw==, tarball: https://registry.npmjs.org/@napi-rs/image-darwin-arm64/-/image-darwin-arm64-1.9.2.tgz}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@napi-rs/image-darwin-x64@1.9.2:
+    resolution: {integrity: sha512-8SnFDcgUSoL6Y38lstXi5FYECD1f4dJqQe2UCTwciED8gZnpC8Pju7JYJWcYgHHXn1JnKP9T1lPlSaX+L56EgA==, tarball: https://registry.npmjs.org/@napi-rs/image-darwin-x64/-/image-darwin-x64-1.9.2.tgz}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@napi-rs/image-freebsd-x64@1.9.2:
+    resolution: {integrity: sha512-oS0+iSb8AekjaHgTZdARKceqTPxSokByLzNQ9vGf2lZlTwlRFmXGq4XYutyzqzRuLT3BATLwtGMXiguMEYMuUw==, tarball: https://registry.npmjs.org/@napi-rs/image-freebsd-x64/-/image-freebsd-x64-1.9.2.tgz}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [freebsd]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@napi-rs/image-linux-arm-gnueabihf@1.9.2:
+    resolution: {integrity: sha512-bsbZSvw3wa7yaLVvz4M5VhJaB9LmgjAL3W7rnmXaX5BgpaQImNDm9MrxPG8ennr9Pbn6qDtCSioOz53ZgWUtgg==, tarball: https://registry.npmjs.org/@napi-rs/image-linux-arm-gnueabihf/-/image-linux-arm-gnueabihf-1.9.2.tgz}
+    engines: {node: '>= 10'}
+    cpu: [arm]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@napi-rs/image-linux-arm64-gnu@1.9.2:
+    resolution: {integrity: sha512-tiN9RMwEIcA8TodvmxdeJqsRdUGKAmxQ2aa0FkYjshdkmChG/sqUtUoL9LdmDf1tw1IACrSuT2Wj4LevxBdIJA==, tarball: https://registry.npmjs.org/@napi-rs/image-linux-arm64-gnu/-/image-linux-arm64-gnu-1.9.2.tgz}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@napi-rs/image-linux-arm64-musl@1.9.2:
+    resolution: {integrity: sha512-w6Sx1j9PtqO2bP3Jl6nuMryzxA3zsoc1U8u1H7AZketyhxXIxqVm0oGomZGs5Bgshzau45bcWinp6GWrlSwt6A==, tarball: https://registry.npmjs.org/@napi-rs/image-linux-arm64-musl/-/image-linux-arm64-musl-1.9.2.tgz}
+    engines: {node: '>= 10'}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@napi-rs/image-linux-x64-gnu@1.9.2:
+    resolution: {integrity: sha512-yB/s9wNB/9YHpQ4TwN8NWMA1tEK1gPLQwtysa68yMdHczb+7BTCKCIYIHD9rUulyT1Q/VgLIJCUMoxve0pIoeg==, tarball: https://registry.npmjs.org/@napi-rs/image-linux-x64-gnu/-/image-linux-x64-gnu-1.9.2.tgz}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@napi-rs/image-linux-x64-musl@1.9.2:
+    resolution: {integrity: sha512-x9dRlo27xYXonh+gZZTqQL4lAfi/lhi8K8LE2hczbZffqmXvWU7NuHSgPVVeU/nvcMMqw1Cjzn81h7ny44SLbQ==, tarball: https://registry.npmjs.org/@napi-rs/image-linux-x64-musl/-/image-linux-x64-musl-1.9.2.tgz}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@napi-rs/image-wasm32-wasi@1.9.2:
+    resolution: {integrity: sha512-BeA1wzzIG4+tdAwXWaAjObBOC6SzIbq0IhykSQ1xCGvYwd8stsn7ktPRz5b55PDo+Doj65PCT4H/xUgFcSiLCw==, tarball: https://registry.npmjs.org/@napi-rs/image-wasm32-wasi/-/image-wasm32-wasi-1.9.2.tgz}
+    engines: {node: '>=14.0.0'}
+    cpu: [wasm32]
+    requiresBuild: true
+    dependencies:
+      '@napi-rs/wasm-runtime': 0.2.3
+    dev: false
+    optional: true
+
+  /@napi-rs/image-win32-ia32-msvc@1.9.2:
+    resolution: {integrity: sha512-JDJP04Hg9Qru5Pth4gfBkXz9hZd/otx6ymi2VTuSKDFjpJIjk4tyUr9+BIE1ghFCHDzeJGVe7CDGdF/NTA1xrg==, tarball: https://registry.npmjs.org/@napi-rs/image-win32-ia32-msvc/-/image-win32-ia32-msvc-1.9.2.tgz}
+    engines: {node: '>= 10'}
+    cpu: [ia32]
+    os: [win32]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@napi-rs/image-win32-x64-msvc@1.9.2:
+    resolution: {integrity: sha512-baRyTED6FkTsPliSOH7x8TV/cyAST9y6L1ClSgSCVEx7+W8MKKig90fF302kEa2PwMAyrXM3Ytq9KuIC7xJ+eA==, tarball: https://registry.npmjs.org/@napi-rs/image-win32-x64-msvc/-/image-win32-x64-msvc-1.9.2.tgz}
+    engines: {node: '>= 10'}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
+    dev: false
+    optional: true
+
+  /@napi-rs/image@1.9.2:
+    resolution: {integrity: sha512-CvTC3XL5/BzHaVkJOZy31xOJLNSY3rBuUIQixaE/LwEQNSUdaxWa9gUyUkC9lUekkUp26CzaLLj2w7l7bxB1ag==, tarball: https://registry.npmjs.org/@napi-rs/image/-/image-1.9.2.tgz}
+    engines: {node: '>= 10'}
+    optionalDependencies:
+      '@napi-rs/image-android-arm64': 1.9.2
+      '@napi-rs/image-darwin-arm64': 1.9.2
+      '@napi-rs/image-darwin-x64': 1.9.2
+      '@napi-rs/image-freebsd-x64': 1.9.2
+      '@napi-rs/image-linux-arm-gnueabihf': 1.9.2
+      '@napi-rs/image-linux-arm64-gnu': 1.9.2
+      '@napi-rs/image-linux-arm64-musl': 1.9.2
+      '@napi-rs/image-linux-x64-gnu': 1.9.2
+      '@napi-rs/image-linux-x64-musl': 1.9.2
+      '@napi-rs/image-wasm32-wasi': 1.9.2
+      '@napi-rs/image-win32-ia32-msvc': 1.9.2
+      '@napi-rs/image-win32-x64-msvc': 1.9.2
+    dev: false
+
+  /@napi-rs/wasm-runtime@0.2.3:
+    resolution: {integrity: sha512-e4qmGDzXu2MYjj/XiKSgJ7XS7Z83MYVRN1yYaYXeQNVEO56zmshqmzFaELfdb612sLq/GmiPfRIwSji+bIlyCw==, tarball: https://registry.npmjs.org/@napi-rs/wasm-runtime/-/wasm-runtime-0.2.3.tgz}
+    requiresBuild: true
+    dependencies:
+      '@emnapi/core': 1.1.1
+      '@emnapi/runtime': 1.1.1
+      '@tybys/wasm-util': 0.8.3
+    dev: false
+    optional: true
 
   /@nodelib/fs.scandir@2.1.5:
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
@@ -1280,6 +1436,14 @@ packages:
   /@tsconfig/node16@1.0.4:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
     dev: false
+
+  /@tybys/wasm-util@0.8.3:
+    resolution: {integrity: sha512-Z96T/L6dUFFxgFJ+pQtkPpne9q7i6kIPYCFnQBHSgSPV9idTsKfIhCss0h5iM9irweZCatkrdeP8yi5uM1eX6Q==, tarball: https://registry.npmjs.org/@tybys/wasm-util/-/wasm-util-0.8.3.tgz}
+    requiresBuild: true
+    dependencies:
+      tslib: 2.6.2
+    dev: false
+    optional: true
 
   /@types/json-schema@7.0.15:
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}

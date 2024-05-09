@@ -7,6 +7,7 @@ export const BOT_TOKEN = process.env.BOT_TOKEN ?? '';
 export const ADMIN_CHAT_IDS = (process.env.ADMIN_CHAT_IDS ? JSON.parse(process.env.ADMIN_CHAT_IDS) : []) as number[];
 export const PIXIV_COOKIE = process.env.PIXIV_COOKIE || '';
 export const TEMP_DIR = path.resolve(__dirname, '../../', process.env.TEMP_DIR || 'temp');
+export const THUMB_DIR = path.resolve(__dirname, '../../', process.env.THUMB_DIR || 'thumb');
 
 // 暂时还没接入
 export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME || '';
