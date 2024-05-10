@@ -1,5 +1,4 @@
 import { Metadata, ResizeFilterType, ResizeFit, Transformer } from '@napi-rs/image';
-import logger from './logger';
 
 export async function getImageMetaData(file: Buffer): Promise<Metadata> {
   const decoder = new Transformer(file);
@@ -13,15 +12,39 @@ export async function getFileSize(file: Buffer) {
   const fileSizeBytes = file.length;
   // 转换为千字节 (KB)
   const fileSizeKilobytes = fileSizeBytes / 1024;
-  logger.info(`File size: ${fileSizeBytes} bytes, ${fileSizeKilobytes.toFixed(2)} KB`);
+  // logger.info(`File size: ${fileSizeBytes} bytes, ${fileSizeKilobytes.toFixed(2)} KB`);
   return fileSizeKilobytes;
 }
 
-export async function compressImage(file: Buffer) {
+const ORIGIN_LIMIT_SIZE = 1024 * 20;
+const THUMB_LIMIT_SIZE = 1024 * 10;
+
+// 压缩图片，origin 保证图片清晰度，限制最大 20 MB, thumb 缩略图要求
+// limitFileSize 大于多少 KB 进行压缩
+export async function compressImage(file: Buffer, postMode: 'origin' | 'thumb') {
   const transformer = new Transformer(file);
   const metadata = await getImageMetaData(file);
-  const { format } = metadata;
-  const resizeImg = await transformer.resize(2560, 2560, ResizeFilterType.Lanczos3, ResizeFit.Inside);
-  if (format === 'png') return await resizeImg.png();
-  else return await resizeImg.jpeg();
+  const { format, width, height } = metadata;
+  const fileSizeKB = await getFileSize(file); // 10MB
+  let resultImg = transformer;
+  if (postMode === 'thumb') {
+    if (width < 2560 && height < 2560 && fileSizeKB < THUMB_LIMIT_SIZE) {
+      // console.log('不用压');
+      return file;
+    }
+    resultImg = await transformer.resize(2560, 2560, ResizeFilterType.Lanczos3, ResizeFit.Inside);
+  } else {
+    if (fileSizeKB < ORIGIN_LIMIT_SIZE) {
+      // console.log('不用压');
+      return file;
+    }
+  }
+
+  if (format === 'png') {
+    const png = await resultImg.png();
+    const pngSize = await getFileSize(png);
+    if (postMode === 'origin' && pngSize > ORIGIN_LIMIT_SIZE) return await resultImg.jpeg();
+    if (postMode === 'thumb' && pngSize > THUMB_LIMIT_SIZE) return await resultImg.jpeg();
+    return png;
+  } else return await resultImg.jpeg();
 }

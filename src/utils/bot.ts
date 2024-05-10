@@ -1,6 +1,8 @@
-import getPixivArtworkInfo, { PixivArtInfo } from '@/api/pixiv';
+import getPixivArtworkInfo from '@/api/pixiv';
+import getTwitterArtworkInfo from '@/api/twitter-web-api/getTwitterArtworkInfo';
 import { TEMP_DIR, THUMB_DIR } from '@/constants';
 import { CommandType, OperateState, Platform } from '@/constants/enum';
+import { ArtworkInfo } from '@/types/Artwork';
 import axios from 'axios';
 import { format } from 'date-fns';
 import fs from 'fs';
@@ -15,7 +17,7 @@ export async function compressThumb(originFileName: string) {
   const compressFilePath = path.join(THUMB_DIR, originFileName);
 
   const originImg = await fs.readFileSync(originFilePath);
-  const compressedImg = await compressImage(originImg);
+  const compressedImg = await compressImage(originImg, 'thumb');
 
   await getFileSize(originImg);
   await getFileSize(compressedImg);
@@ -25,6 +27,20 @@ export async function compressThumb(originFileName: string) {
     logger.info('thumb 文件夹不存在，创建一下' + THUMB_DIR);
     fs.mkdirSync(THUMB_DIR);
   }
+  fs.writeFileSync(compressFilePath, compressedImg);
+
+  logger.info('compress File ' + originFileName + ' downloaded');
+}
+
+export async function compressOrigin(originFileName: string) {
+  const originFilePath = path.join(TEMP_DIR, originFileName);
+  const originImg = await fs.readFileSync(originFilePath);
+  const compressedImg = await compressImage(originImg, 'origin');
+  const compressFilePath = path.join(TEMP_DIR, originFileName);
+
+  await getFileSize(originImg);
+  await getFileSize(compressedImg);
+
   fs.writeFileSync(compressFilePath, compressedImg);
 
   logger.info('compress File ' + originFileName + ' downloaded');
@@ -52,6 +68,7 @@ export async function downloadFile(url: string, fileName?: string): Promise<stri
   fs.writeFileSync(filePath, response.data);
 
   await compressThumb(fileName);
+  await compressOrigin(fileName);
 
   logger.info('echo File ' + fileName + ' downloaded');
 
@@ -90,7 +107,7 @@ export function getArtInfoFromUrl(url: string): { type: Platform; pid?: string |
 export type GetArtWorkResult = {
   state: OperateState;
   msg?: string;
-  result?: PixivArtInfo[];
+  result?: ArtworkInfo[];
 };
 export async function getArtworks(url: string, cmdType?: CommandType): Promise<GetArtWorkResult> {
   const artInfo = getArtInfoFromUrl(url);
@@ -111,17 +128,17 @@ export async function getArtworks(url: string, cmdType?: CommandType): Promise<G
       };
     }
   }
-
   if (type === Platform.Pixiv) {
     const artworkInfo = await getPixivArtworkInfo(url);
     return { state: OperateState.Success, result: artworkInfo };
   }
 
   if (type === Platform.Twitter) {
-    // TODO: getTwitter Image
-    console.log('getTwitter Image' + url);
-    const artworkInfo = await getPixivArtworkInfo(url);
-    return { state: OperateState.Success, result: artworkInfo };
+    const { state, result, msg } = await getTwitterArtworkInfo(url);
+    if (state === OperateState.Fail) {
+      return { state, msg };
+    }
+    return { state: OperateState.Success, result: result };
   }
 
   return { state: OperateState.Fail, msg: 'URL 出错了？未找到合适的图片' };

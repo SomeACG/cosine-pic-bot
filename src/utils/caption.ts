@@ -1,5 +1,5 @@
-import { PixivArtInfo } from '@/api/pixiv';
-import { Artist } from '@/constants/types';
+import { Platform } from '@/constants/enum';
+import { Artist, ArtworkInfo } from '@/types/Artwork';
 
 function encodeHtmlChars(text: string) {
   return text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -7,14 +7,14 @@ function encodeHtmlChars(text: string) {
 
 function genArtistUrl(artist: Artist) {
   switch (artist.type) {
-    case 'pixiv':
+    case Platform.Pixiv:
       return 'https://www.pixiv.net/users/' + artist.uid;
-    case 'twitter':
+    case Platform.Twitter:
       return 'https://twitter.com/' + artist.username;
   }
 }
 
-export function infoCmdCaption(artwork_info: PixivArtInfo) {
+export function infoCmdCaption(artwork_info: ArtworkInfo) {
   let caption = '图片下载成功!\n';
   if (artwork_info.title) caption += `<b>作品标题:</b> ${encodeHtmlChars(artwork_info.title)}\n`;
   if (artwork_info.desc) caption += `<b>作品描述:</b> <code>${artwork_info.desc}</code>\n`;

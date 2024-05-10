@@ -1,4 +1,6 @@
-import { Artist, ImageSize } from '@/constants/types';
+import { Platform } from '@/constants/enum';
+import { ImageSize } from '@/constants/types';
+import { Artist, ArtworkInfo } from '@/types/Artwork';
 import { PixivAjaxResp, PixivIllust, PixivIllustPages } from '@/types/pixiv';
 import path from 'path';
 import pixivRequest from '../request/pixiv';
@@ -13,14 +15,12 @@ export type PixivArtInfo = {
   raw_tags: string[];
   artist: Artist;
 };
-export default async function getPixivArtworkInfo(post_url: string): Promise<PixivArtInfo[]> {
+export default async function getPixivArtworkInfo(post_url: string): Promise<ArtworkInfo[]> {
   const pixiv_id = path.basename(post_url);
-  console.log('======= pixiv_id =======\n', pixiv_id);
   const {
     data: { body: illust },
   } = await pixivRequest.get<PixivAjaxResp<PixivIllust>>('https://www.pixiv.net/ajax/illust/' + pixiv_id);
 
-  console.log('======= illust =======\n', illust);
   const {
     data: { body: illust_pages },
   } = await pixivRequest.get<PixivAjaxResp<PixivIllustPages>>(`https://www.pixiv.net/ajax/illust/${pixiv_id}/pages?lang=zh`);
@@ -45,7 +45,8 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Pix
       // Remove all the html tags in the description
       .replace(/<[^>]+>/g, '');
 
-    const artworkInfo: PixivArtInfo = {
+    const artworkInfo: ArtworkInfo = {
+      source_type: Platform.Pixiv,
       post_url: post_url,
       title: illust.title,
       desc: illust_desc,
@@ -54,7 +55,7 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Pix
       size: size,
       raw_tags: tags,
       artist: {
-        type: 'pixiv',
+        type: Platform.Pixiv,
         uid: illust.userId,
         name: illust.userName,
       },
