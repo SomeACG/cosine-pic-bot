@@ -1,6 +1,7 @@
 import { OperateState, Platform } from '@/constants/enum';
 import { ArtworkInfo } from '@/types/Artwork';
 import { getTweetDetails } from './fxtwitter';
+import { getUrlFileExtension } from '@/utils/image';
 
 export default async function getTwitterArtworkInfo(
   post_url: string,
@@ -13,6 +14,7 @@ export default async function getTwitterArtworkInfo(
   if (!match?.length) return noFound;
 
   const tweet = await getTweetDetails(match[1] ?? '');
+
   // console.log('======= tweet =======\n');
   // console.dir(tweet);
 
@@ -25,11 +27,13 @@ export default async function getTwitterArtworkInfo(
   return {
     state: OperateState.Success,
     result: photos.map((photo) => ({
+      pid: tweet.id,
       source_type: Platform.Twitter,
       post_url: post_url,
       desc,
       url_thumb: photo.url + '?name=medium',
       url_origin: photo.url + '?name=orig',
+      extension: getUrlFileExtension(photo.url) ?? 'jpg',
       size: {
         width: photo.width,
         height: photo.height,

@@ -48,3 +48,10 @@ export async function compressImage(file: Buffer, postMode: 'origin' | 'thumb') 
     return png;
   } else return await resultImg.jpeg();
 }
+
+export function getUrlFileExtension(url?: string) {
+  if (!url) return undefined;
+  const match = url.match(/\.([^/?#]+)(?=[?#]|$)/);
+  const extension = match?.length ? match[1] : 'jpg';
+  return extension;
+}

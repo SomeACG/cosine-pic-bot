@@ -8,49 +8,61 @@ import { format } from 'date-fns';
 import fs from 'fs';
 import path from 'path';
 import { prisma } from './db';
-import { compressImage, getFileSize } from './image';
+import { fsExistOrCreate } from './fs';
+import { compressImage } from './image';
 import logger from './logger';
 
 // 压缩图片 保证图片清晰度
-export async function compressThumb(originFileName: string) {
-  const originFilePath = path.join(TEMP_DIR, originFileName);
-  const compressFilePath = path.join(THUMB_DIR, originFileName);
+export async function compressThumb(originFileName: string, platform: Platform) {
+  const originFilePath = path.join(TEMP_DIR, platform, originFileName);
+
+  const thumbDirName = path.join(THUMB_DIR, platform);
+  const compressFilePath = path.join(thumbDirName, originFileName);
 
   const originImg = await fs.readFileSync(originFilePath);
   const compressedImg = await compressImage(originImg, 'thumb');
 
-  await getFileSize(originImg);
-  await getFileSize(compressedImg);
+  // await getFileSize(originImg);
+  // await getFileSize(compressedImg);
 
-  // 确保目录存在
-  if (!fs.existsSync(THUMB_DIR)) {
-    logger.info('thumb 文件夹不存在，创建一下' + THUMB_DIR);
-    fs.mkdirSync(THUMB_DIR);
-  }
+  if (!fsExistOrCreate(thumbDirName)) throw Error('download thumb failed, 存储目录不存在');
+
   fs.writeFileSync(compressFilePath, compressedImg);
 
-  logger.info('compress File ' + originFileName + ' downloaded');
+  logger.info('compress Thumb File ' + originFileName + ' downloaded');
 }
 
-export async function compressOrigin(originFileName: string) {
-  const originFilePath = path.join(TEMP_DIR, originFileName);
+// 为什么不跟上面合成一个函数呢，这个等日后考量一下再说吧，玩意需要加什么操作呢w
+export async function compressOrigin(originFileName: string, platform: Platform) {
+  const originDirName = path.join(TEMP_DIR, platform);
+
+  const originFilePath = path.join(originDirName, originFileName);
   const originImg = await fs.readFileSync(originFilePath);
-  const compressedImg = await compressImage(originImg, 'origin');
-  const compressFilePath = path.join(TEMP_DIR, originFileName);
 
-  await getFileSize(originImg);
-  await getFileSize(compressedImg);
+  const compressFilePath = path.join(originDirName, originFileName);
+  const compressedImg = await compressImage(originImg, 'origin');
+
+  if (!fsExistOrCreate(originDirName)) throw Error('download origin failed, 存储目录不存在');
 
   fs.writeFileSync(compressFilePath, compressedImg);
 
-  logger.info('compress File ' + originFileName + ' downloaded');
+  logger.info('compress Origin File ' + originFileName + ' downloaded');
 }
 
-export async function downloadFile(url: string, fileName?: string): Promise<string> {
+export async function downloadFile({
+  url,
+  fileName,
+  platform,
+}: {
+  url: string;
+  fileName?: string;
+  platform: Platform;
+}): Promise<string> {
   fileName = fileName ? fileName : path.basename(new URL(url)?.pathname);
   logger.info('Start download file ' + fileName);
 
-  const filePath = path.join(TEMP_DIR, fileName);
+  const dirPath = path.join(TEMP_DIR, platform);
+  const filePath = path.join(dirPath, fileName);
 
   const response = await axios.get(url, {
     responseType: 'arraybuffer',
@@ -59,24 +71,27 @@ export async function downloadFile(url: string, fileName?: string): Promise<stri
     },
   });
 
-  // 确保目录存在
-  if (!fs.existsSync(TEMP_DIR)) {
-    logger.info('temp 文件夹不存在，创建一下' + TEMP_DIR);
-    fs.mkdirSync(TEMP_DIR);
-  }
+  if (!fsExistOrCreate(dirPath)) throw Error('download file ' + fileName + ' failed, 存储目录不存在');
 
   fs.writeFileSync(filePath, response.data);
 
-  await compressThumb(fileName);
-  await compressOrigin(fileName);
+  await compressThumb(fileName, platform);
+  await compressOrigin(fileName, platform);
 
   logger.info('echo File ' + fileName + ' downloaded');
 
   return fileName;
 }
 
-export async function downloadFileArray(urls: string[]): Promise<string[]> {
-  const promises = urls.map((url) => downloadFile(url));
+export async function downloadFileArray(artworksInfo: ArtworkInfo[]): Promise<string[]> {
+  const promises = artworksInfo.map(({ pid, url_origin, source_type, extension }, idx) => {
+    const fileName = source_type === Platform.Twitter ? `${pid}_${idx}.${extension}` : undefined;
+    return downloadFile({
+      url: url_origin,
+      platform: source_type,
+      fileName,
+    });
+  });
   return await Promise.all(promises);
 }
 

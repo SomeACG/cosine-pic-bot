@@ -2,7 +2,7 @@
 //   DIRECT_POST = 'direct_post',
 // }
 export enum Platform {
-  Pixiv = 'Pixiv', // TODO: change to pixiv in database
+  Pixiv = 'pixiv', // TODO: change to pixiv in database
   Twitter = 'twitter',
 }
 

@@ -22,11 +22,10 @@ const echoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
 
   await ctx.wait('正在获取图片信息并下载图片，请稍后~~');
 
-  const originUrls = artworksInfo.map((item) => item.url_origin);
-  const originFileNames = await downloadFileArray(originUrls);
-
-  const originFiles = originFileNames.map((item) => new InputFile(path.resolve(TEMP_DIR, item)));
-  const thumbFiles = originFileNames.map((item) => new InputFile(path.resolve(THUMB_DIR, item)));
+  const originFileNames = await downloadFileArray(artworksInfo);
+  const platform = artworksInfo[0].source_type;
+  const originFiles = originFileNames.map((item) => new InputFile(path.resolve(TEMP_DIR, platform, item)));
+  const thumbFiles = originFileNames.map((item) => new InputFile(path.resolve(THUMB_DIR, platform, item)));
 
   const thumbMedias = thumbFiles.map((file, idx) =>
     InputMediaBuilder.photo(file, idx === 0 ? { caption, parse_mode: 'HTML' } : {}),

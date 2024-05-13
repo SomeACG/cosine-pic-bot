@@ -4,6 +4,7 @@ import { Artist, ArtworkInfo } from '@/types/Artwork';
 import { PixivAjaxResp, PixivIllust, PixivIllustPages } from '@/types/pixiv';
 import path from 'path';
 import pixivRequest from '../request/pixiv';
+import { getUrlFileExtension } from '@/utils/image';
 
 export type PixivArtInfo = {
   post_url: string;
@@ -45,7 +46,10 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Art
       // Remove all the html tags in the description
       .replace(/<[^>]+>/g, '');
 
+    const extension = getUrlFileExtension(urls.original);
+
     const artworkInfo: ArtworkInfo = {
+      pid: illust.id,
       source_type: Platform.Pixiv,
       post_url: post_url,
       title: illust.title,
@@ -54,6 +58,7 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Art
       url_origin: urls.original,
       size: size,
       raw_tags: tags,
+      extension: extension ?? 'jpg',
       artist: {
         type: Platform.Pixiv,
         uid: illust.userId,
