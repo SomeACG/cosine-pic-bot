@@ -23,7 +23,7 @@ const echoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
 
   try {
     if (args?.length > 1 && !args[1]?.includes('#')) {
-      const [batch, size] = args?.[1]?.split('_') ?? [];
+      const [batch, size] = args?.[1]?.split(/[,/_-]/) ?? [];
       option.batch = Number(batch) ?? 0;
       option.page = Number(size) ?? 0;
     }

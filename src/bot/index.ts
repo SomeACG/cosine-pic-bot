@@ -14,8 +14,8 @@ const bot = new Bot(BOT_TOKEN, {
 const commands = [
   { command: 'start', description: '显示欢迎信息～' },
   { command: 'help', description: '显示帮助～' },
-  { command: 'echo', description: '显示 Post 预览，形式为 /echo url [?batch_?page] [?#tag1] [?#tag2]' },
-  { command: 'post', description: '(admin) 发图到频道，形式为 /post url #tag1 #tag2' },
+  { command: 'echo', description: '显示 Post 预览，形式为 /echo url [?batch_?page]  [?#tag1]  [?#tag2]' },
+  { command: 'post', description: '(admin) 发图到频道，形式为 /post url #tag1 #tag2 （暂未开放）' },
   // { command: 'recommend', description: '投稿，形式为 /recommend url #tag1 #tag2' },
   // { command: 'random', description: '随机图片' },
   // { command: 'mark_dup', description: '(admin) 标记该图片已被发送过，形式为 /mark_dup url ' },
