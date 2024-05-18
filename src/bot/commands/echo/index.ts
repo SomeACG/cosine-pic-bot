@@ -19,13 +19,14 @@ const echoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
   const url = args[0] ?? ''; // TODO: Url validation
   const { state, msg, result: artworksInfo } = await getArtworks(url);
 
-  const option = { batch: 0, page: 0 };
+  const option = { batch: 0, page: 0, batchSize: 6 };
 
   try {
     if (args?.length > 1 && !args[1]?.includes('#')) {
-      const [batch, size] = args?.[1]?.split(/[,/_-]/) ?? [];
+      const [batch, page, batchSize] = args?.[1]?.split(/[,/_-]/) ?? [];
       option.batch = Number(batch) ?? 0;
-      option.page = Number(size) ?? 0;
+      option.page = Number(page) ?? 0;
+      option.batchSize = Number(batchSize) ?? 6;
     }
   } catch (e) {
     ctx.reply('参数有误！');
@@ -39,7 +40,7 @@ const echoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
 
   // console.log('======= option =======\n', option);
 
-  const { totalPage, res: chunkRes } = chunkMedias(artworksInfo);
+  const { totalPage, res: chunkRes } = chunkMedias(artworksInfo, option.batchSize);
   // console.log('======= totalPage =======\n', totalPage);
   // console.log('======= chunkRes =======\n', chunkRes);
 
