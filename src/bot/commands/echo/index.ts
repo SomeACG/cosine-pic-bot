@@ -1,10 +1,8 @@
 import { WrapperContext } from '@/bot/wrappers/command-wrapper';
 import { OperateState } from '@/constants/enum';
-import { chunkMedias } from '@/utils/batch';
 import { getArtworks } from '@/utils/bot';
 import { CommandMiddleware } from 'grammy';
-import { echoPostMedia } from './echoPostMedia';
-import { ArtworkInfo } from '@/types/Artwork';
+import { parseOptions, processArtworks } from './utils';
 
 // /echo url [?batch_?page] [?#tag1] [?#tag2]
 // eg: /echo https://www.pixiv.net/artworks/118299613 0_0  #tag1 #tag2 跟没传一样效果，尝试全发
@@ -17,19 +15,11 @@ const echoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
   if (!args?.length) return ctx.reply('请携带要预览的 url');
 
   const url = args.shift() ?? ''; // TODO: Url validation
-  const option = { batch: 0, page: 0, batchSize: 6 };
-  try {
-    if (args?.length > 0 && !args[0]?.includes('#')) {
-      const [batch, page, batchSize] = args.shift()?.split(/[,/_-]/) ?? [];
-      option.batch = Number(batch) ?? 0;
-      option.page = Number(page) ?? 0;
-      option.batchSize = Number(batchSize) ?? 6;
-    }
-  } catch (e) {
-    return ctx.reply('参数有误！');
-  }
-  const customTags = [...args]; // 之前的都 shift 掉了
-  console.log('======= customTags =======\n', customTags);
+
+  const option = parseOptions(args);
+
+  const hasOtherOpt = args?.length > 0 && !args[0]?.includes('#');
+  const customTags = args.slice(hasOtherOpt ? 1 : 0);
 
   const { state, msg, result: artworksInfo } = await getArtworks(url);
 
@@ -37,59 +27,7 @@ const echoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
 
   if (!artworksInfo?.length || !artworksInfo[0]) return ctx.reply('出错了？未找到合适的图片');
 
-  await ctx.wait('正在获取图片信息并下载图片，请稍等~~');
-
-  // console.log('======= option =======\n', option);
-
-  const { totalPage, res: chunkRes } = chunkMedias(artworksInfo, option.batchSize);
-  // console.log('======= totalPage =======\n', totalPage);
-  // console.log('======= chunkRes =======\n', chunkRes);
-  if (!option.batch) {
-    if (!option.page) {
-      // 0_0
-      // 全发
-      for (let page = 0; page < totalPage; page++) {
-        const artworks = chunkRes[page];
-        await echoPostMedia({ ctx, customTags, artworks: artworks ?? [], page, totalPage });
-      }
-      // console.log('======= 全发 artworks =======\n');
-    } else {
-      // 0_1 / 0_2... 发每批的第 page 张
-      const artworks = [];
-      for (let i = 0; i < totalPage; i++) {
-        if (chunkRes?.[i]?.[option.page - 1]) {
-          artworks.push(chunkRes[i]![option.page - 1] as ArtworkInfo);
-        }
-      }
-      await echoPostMedia({ ctx, customTags, artworks });
-      // console.log(`======= 发每批的第 ${option.page} 张 artworks =======\n`, artworks);
-    }
-  } else {
-    // batch 1 / 2 /3....
-    if (totalPage < option.batch) {
-      ctx.reply('参数无效，超出范围!');
-      await ctx.deleteWaiting();
-      return;
-    }
-    if (!option.page) {
-      // 1_0 2_0 ....
-      // 发第batch的全部
-      const target = chunkRes[option.batch - 1] ?? [];
-      await echoPostMedia({ ctx, customTags, artworks: target });
-      // console.log(`======= 发第 ${option.batch} 的全部 =======\n`, target);
-    } else {
-      // 1_1 / 2_2 ....
-      // 发第 batch 批的第 page 张
-      if (option.page - 1 >= (chunkRes?.[option.batch - 1]?.length ?? 0)) {
-        ctx.reply('参数无效，超出范围!');
-        await ctx.deleteWaiting();
-        return;
-      }
-      const target = [chunkRes?.[option.batch - 1]?.[option.page - 1]] as ArtworkInfo[];
-      await echoPostMedia({ ctx, customTags, artworks: target });
-      // console.log(`======= 发第 ${option.batch} 批的第 ${option.page} 张 =======\n`, target);
-    }
-  }
+  await processArtworks(ctx, artworksInfo, option, customTags);
 
   return await ctx.deleteWaiting();
 };

@@ -6,18 +6,37 @@ import { infoCmdCaption } from '@/utils/caption';
 import { CommandContext, InputFile, InputMediaBuilder } from 'grammy';
 import path from 'path';
 
+function getOptCaption({
+  currentPage,
+  total,
+  option,
+}: {
+  currentPage?: number;
+  total?: number;
+  option: { page: number; batch: number; batchSize: number };
+}) {
+  const { batch, page, batchSize } = option;
+  if (total && total >= 2 && !page && !batch) return `\n第 ${(currentPage ?? 0) + 1}/${total} 批\n`;
+  if (!page && !batch) return '';
+  const batchStr = batch ? `获取第 ${batch} 批` : '获取每批';
+  const pageStr = page ? `第 ${page} 张` : '所有张';
+  const batchSizeStr = `每批最多 ${batchSize} 张\n`;
+  return `\n共 ${total} 批，` + batchSizeStr + batchStr + pageStr + '\n';
+}
 export async function echoPostMedia({
   ctx,
   artworks,
-  page,
+  currentPage,
   totalPage,
   customTags,
+  option,
 }: {
   ctx: CommandContext<WrapperContext>;
   artworks: ArtworkInfo[];
   customTags?: string[];
-  page?: number;
+  currentPage?: number;
   totalPage?: number;
+  option: { batch: number; page: number; batchSize: number };
 }) {
   if (!artworks?.length || !artworks[0]) {
     ctx.reply('出错了？未找到合适的图片');
@@ -27,7 +46,8 @@ export async function echoPostMedia({
   const firstImg = artworks[0];
   firstImg.custom_tags = customTags;
   const total = totalPage ?? 0;
-  const caption = (total >= 2 ? `第 ${(page ?? 0) + 1}/${total} 批\n` : '') + infoCmdCaption(firstImg);
+
+  const caption = infoCmdCaption(firstImg) + getOptCaption({ currentPage, total, option });
 
   const originFileNames = await downloadFileArray(artworks);
   const platform = artworks[0].source_type;

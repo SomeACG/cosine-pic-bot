@@ -45,7 +45,7 @@ bot.catch((err) => {
   } else if (e instanceof HttpError) {
     errorMsg += 'Could not contact Telegram:' + e;
   } else {
-    errorMsg += 'Unknown error:' + e;
+    errorMsg += 'Unknown error:' + (e as Error)?.message ?? e;
   }
   errorMsg += '\n```';
   console.error(errorMsg);
