@@ -40,7 +40,7 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Art
             const invalidReg = // eslint-disable-next-line no-irregular-whitespace
               /[\s!"$%&'()*+,-./:;<=>?@[\]^`{|}~．！？｡。＂＃＄％＆＇（）＊＋, －／：；＜＝＞＠［＼］＾＿｀｛｜｝～｟｠｢｣､　、〃〈〉《》「」『』【】〔〕〖〗〘〙〚〛〜〝〞〟〰〾〿–—‘’‛“”„‟…‧﹏﹑﹔·]/g;
             item.tag = item.tag?.replace(invalidReg, '');
-            const translatedTag = item.translation?.en?.replace(invalidReg, '');
+            const translatedTag = item.translation?.en?.replace(invalidReg, '') ?? '';
 
             // https://github.com/xuejianxianzun/PixivBatchDownloader/blob/397c16670bb480810d93bba70bb784bd0707bdee/src/ts/Tools.ts#L399
             // 如果翻译后的标签是纯英文, 则判断原标签是否含有至少一部分中文, 如果是则使用原标签
