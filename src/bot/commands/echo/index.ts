@@ -16,25 +16,24 @@ const echoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
   const args = ctx.command.args;
   if (!args?.length) return ctx.reply('请携带要预览的 url');
 
-  const url = args[0] ?? ''; // TODO: Url validation
-  const { state, msg, result: artworksInfo } = await getArtworks(url);
-
+  const url = args.shift() ?? ''; // TODO: Url validation
   const option = { batch: 0, page: 0, batchSize: 6 };
-
-  const hasOtherArgs = args?.length > 1 && !args[1]?.includes('#');
   try {
-    if (hasOtherArgs) {
-      const [batch, page, batchSize] = args?.[1]?.split(/[,/_-]/) ?? [];
+    if (args?.length > 0 && !args[0]?.includes('#')) {
+      const [batch, page, batchSize] = args.shift()?.split(/[,/_-]/) ?? [];
       option.batch = Number(batch) ?? 0;
       option.page = Number(page) ?? 0;
       option.batchSize = Number(batchSize) ?? 6;
     }
   } catch (e) {
-    ctx.reply('参数有误！');
+    return ctx.reply('参数有误！');
   }
-  const customTags = hasOtherArgs ? args.slice(2) : args.slice(1);
+  const customTags = [...args]; // 之前的都 shift 掉了
   console.log('======= customTags =======\n', customTags);
-  if (hasOtherArgs) if (state === OperateState.Fail) return ctx.reply(msg ?? 'unknown error', { parse_mode: 'HTML' });
+
+  const { state, msg, result: artworksInfo } = await getArtworks(url);
+
+  if (state === OperateState.Fail) return ctx.reply(msg ?? 'unknown error', { parse_mode: 'HTML' });
 
   if (!artworksInfo?.length || !artworksInfo[0]) return ctx.reply('出错了？未找到合适的图片');
 
@@ -45,14 +44,13 @@ const echoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
   const { totalPage, res: chunkRes } = chunkMedias(artworksInfo, option.batchSize);
   // console.log('======= totalPage =======\n', totalPage);
   // console.log('======= chunkRes =======\n', chunkRes);
-
   if (!option.batch) {
     if (!option.page) {
       // 0_0
       // 全发
       for (let page = 0; page < totalPage; page++) {
         const artworks = chunkRes[page];
-        await echoPostMedia(ctx, artworks ?? [], page, totalPage);
+        await echoPostMedia({ ctx, customTags, artworks: artworks ?? [], page, totalPage });
       }
       // console.log('======= 全发 artworks =======\n');
     } else {
@@ -63,7 +61,7 @@ const echoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
           artworks.push(chunkRes[i]![option.page - 1] as ArtworkInfo);
         }
       }
-      await echoPostMedia(ctx, artworks);
+      await echoPostMedia({ ctx, customTags, artworks });
       // console.log(`======= 发每批的第 ${option.page} 张 artworks =======\n`, artworks);
     }
   } else {
@@ -77,7 +75,7 @@ const echoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
       // 1_0 2_0 ....
       // 发第batch的全部
       const target = chunkRes[option.batch - 1] ?? [];
-      await echoPostMedia(ctx, target);
+      await echoPostMedia({ ctx, customTags, artworks: target });
       // console.log(`======= 发第 ${option.batch} 的全部 =======\n`, target);
     } else {
       // 1_1 / 2_2 ....
@@ -88,7 +86,7 @@ const echoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
         return;
       }
       const target = [chunkRes?.[option.batch - 1]?.[option.page - 1]] as ArtworkInfo[];
-      await echoPostMedia(ctx, target);
+      await echoPostMedia({ ctx, customTags, artworks: target });
       // console.log(`======= 发第 ${option.batch} 批的第 ${option.page} 张 =======\n`, target);
     }
   }

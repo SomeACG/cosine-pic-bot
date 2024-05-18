@@ -6,18 +6,26 @@ import { infoCmdCaption } from '@/utils/caption';
 import { CommandContext, InputFile, InputMediaBuilder } from 'grammy';
 import path from 'path';
 
-export async function echoPostMedia(
-  ctx: CommandContext<WrapperContext>,
-  artworks: ArtworkInfo[],
-  page?: number,
-  totalPage?: number,
-) {
+export async function echoPostMedia({
+  ctx,
+  artworks,
+  page,
+  totalPage,
+  customTags,
+}: {
+  ctx: CommandContext<WrapperContext>;
+  artworks: ArtworkInfo[];
+  customTags?: string[];
+  page?: number;
+  totalPage?: number;
+}) {
   if (!artworks?.length || !artworks[0]) {
     ctx.reply('出错了？未找到合适的图片');
     return;
   }
 
   const firstImg = artworks[0];
+  firstImg.custom_tags = customTags;
   const total = totalPage ?? 0;
   const caption = (total >= 2 ? `第 ${(page ?? 0) + 1}/${total} 批\n` : '') + infoCmdCaption(firstImg);
 

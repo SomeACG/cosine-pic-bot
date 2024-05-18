@@ -136,4 +136,4 @@ temp/
 thumb/
 old/
 .DS_Store
-dev.db
+data.db

@@ -36,11 +36,26 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Art
       ? unique(
           illust.tags.tags.map((item) => {
             if (item.tag === 'R-18') item.tag = 'R18';
+            console.log('======= rawTag tag =======\n', item.tag);
+            const invalidReg = // eslint-disable-next-line no-irregular-whitespace
+              /[\s!"$%&'()*+,-./:;<=>?@[\]^`{|}~．！？｡。＂＃＄％＆＇（）＊＋, －／：；＜＝＞＠［＼］＾＿｀｛｜｝～｟｠｢｣､　、〃〈〉《》「」『』【】〔〕〖〗〘〙〚〛〜〝〞〟〰〾〿–—‘’‛“”„‟…‧﹏﹑﹔·]/g;
+            item.tag = item.tag?.replace(invalidReg, '');
+            const translatedTag = item.translation?.en?.replace(invalidReg, '');
 
-            // 匹配中文，若全为中文则没必要翻译
-            if (!/^[\u4e00-\u9fff]+$/.test(item.tag) && item?.translation?.en) item.tag = item.translation.en;
-
-            item.tag = item.tag.replace(/[\s"']/g, '_').replace(/[：:]/g, '');
+            // https://github.com/xuejianxianzun/PixivBatchDownloader/blob/397c16670bb480810d93bba70bb784bd0707bdee/src/ts/Tools.ts#L399
+            // 如果翻译后的标签是纯英文, 则判断原标签是否含有至少一部分中文, 如果是则使用原标签
+            // 这是为了解决一些中文标签被翻译成英文的问题, 如 原神 被翻译为 Genshin Impact
+            // 能代(アズールレーン) Noshiro (Azur Lane) 也会使用原标签
+            // 但是如果原标签里没有中文则依然会使用翻译后的标签, 如 フラミンゴ flamingo
+            // if (!/^[\u4e00-\u9fff]+$/.test(item.tag) && item?.translation?.en) item.tag = item.translation.en;
+            // console.log('======= rawTag mid =======\n', item.tag);
+            const chineseRegexp = /[\u4e00-\u9fff]/;
+            const allEnglish = [].every.call(translatedTag, function (s: string) {
+              return s.charCodeAt(0) < 128;
+            });
+            if (!allEnglish || !chineseRegexp.test(item.tag)) {
+              if (translatedTag) item.tag = translatedTag;
+            }
             return item.tag;
           }),
         )

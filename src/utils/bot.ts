@@ -132,6 +132,7 @@ export async function getArtworks(url: string, cmdType?: CommandType): Promise<G
   // 要发的，查重
   if (cmdType === CommandType.Post) {
     const res = await prisma.image.findFirst({ where: { pid } });
+    // console.log('======= res =======\n', res);
     if (res?.create_time) {
       logger.info(`图片 ${pid} 已经存在于数据库中`);
       return {

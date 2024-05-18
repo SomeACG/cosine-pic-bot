@@ -13,7 +13,8 @@
     "pm2:restart": "pm2 restart ecosystem.config.js",
     "pm2:stop": "pm2 stop ecosystem.config.js",
     "pm2:log": "pm2 log ecosystem.config.js",
-    "test": "npx jest --runTestsByPath src/tests/twitter.test.ts"
+    "test": "npx jest --runTestsByPath src/tests/twitter.test.ts",
+    "db:convert": "node scripts/convertOldData.js && npx prisma generate"
   },
   "keywords": [],
   "author": "",
@@ -30,6 +31,7 @@
     "grammy": "^1.22.4",
     "pino": "^8.17.2",
     "pino-pretty": "^10.3.1",
+    "sqlite3": "^5.1.7",
     "tough-cookie": "^4.1.4",
     "ts-node": "^10.9.2",
     "tsconfig-paths": "^4.2.0",

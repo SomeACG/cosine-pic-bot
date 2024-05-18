@@ -8,17 +8,17 @@ datasource db {
 }
 
 model Image {
-  id          Int      @id @default(autoincrement())
-  userid      String?
+  id          Int       @id @default(autoincrement())
+  userid      BigInt?
   username    String?
-  create_time String? // FIXME Sqlite prisma bug https://github.com/prisma/prisma/issues/18078  change to RFC 3339
+  create_time DateTime?
   platform    String?
   title       String?
   page        Int? // 第几张图
   size        Int? // 图片大小 单位 byte
   filename    String? // 最终存的实际名字 xxx.png 等
   author      String? // 作者昵称 p站是名字，推特是handle(@xxx)
-  authorid    String? // 作者 uid
+  authorid    BigInt? // 作者 uid
   pid         String? // 图 id, 对于 twitter, 是 tweet id, 其他平台类
   extension   String? // 拓展名
   rawurl      String? // 原始 url （Source）
