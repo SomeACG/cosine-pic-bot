@@ -5,7 +5,7 @@ import { PixivAjaxResp, PixivIllust, PixivIllustPages } from '@/types/pixiv';
 import path from 'path';
 import pixivRequest from '../request/pixiv';
 import { getUrlFileExtension } from '@/utils/image';
-
+import { unique } from '@/utils';
 export type PixivArtInfo = {
   post_url: string;
   title: string;
@@ -32,15 +32,19 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Art
       width,
       height,
     };
-    const tags = illust.tags.tags.map((item) => {
-      if (item.tag === 'R-18') item.tag = 'R18';
+    const rawTags = illust?.tags?.tags?.length
+      ? unique(
+          illust.tags.tags.map((item) => {
+            if (item.tag === 'R-18') item.tag = 'R18';
 
-      item.tag = item.translation?.en ? item.translation.en : item.tag;
+            // 匹配中文，若全为中文则没必要翻译
+            if (!/^[\u4e00-\u9fff]+$/.test(item.tag) && item?.translation?.en) item.tag = item.translation.en;
 
-      item.tag = item.tag.replace(/[\s"']/g, '_');
-
-      return item.tag;
-    });
+            item.tag = item.tag.replace(/[\s"']/g, '_').replace(/[：:]/g, '');
+            return item.tag;
+          }),
+        )
+      : [];
 
     const illust_desc = illust.description
       // Remove all the html tags in the description
@@ -53,11 +57,11 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Art
       source_type: Platform.Pixiv,
       post_url: post_url,
       title: illust.title,
-      desc: illust_desc,
+      desc: illust_desc.slice(0, 230) + (illust_desc.length > 230 ? '...' : ''), // 超过230字自动截断
       url_thumb: urls.regular,
       url_origin: urls.original,
       size: size,
-      raw_tags: tags,
+      raw_tags: rawTags,
       extension: extension ?? 'jpg',
       artist: {
         type: Platform.Pixiv,

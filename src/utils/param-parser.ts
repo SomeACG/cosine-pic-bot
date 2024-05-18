@@ -17,9 +17,10 @@ export function parseParams(command: string): CommandEntity {
       args: [],
     };
   const argsArr = cmd.split(' ');
-  if (!argsArr?.length || argsArr?.length === 1) return { name: command, args: [] };
+  const validArgsArr = argsArr.filter((v) => Boolean(v));
+  if (!validArgsArr?.length || validArgsArr?.length === 1) return { name: command, args: [] };
   return {
     name,
-    args: argsArr.slice(1),
+    args: validArgsArr.slice(1),
   };
 }

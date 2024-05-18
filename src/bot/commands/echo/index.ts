@@ -3,7 +3,7 @@ import { OperateState } from '@/constants/enum';
 import { chunkMedias } from '@/utils/batch';
 import { getArtworks } from '@/utils/bot';
 import { CommandMiddleware } from 'grammy';
-import { echoPostMedia } from './postMedia';
+import { echoPostMedia } from './echoPostMedia';
 import { ArtworkInfo } from '@/types/Artwork';
 
 // /echo url [?batch_?page] [?#tag1] [?#tag2]
@@ -21,8 +21,9 @@ const echoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
 
   const option = { batch: 0, page: 0, batchSize: 6 };
 
+  const hasOtherArgs = args?.length > 1 && !args[1]?.includes('#');
   try {
-    if (args?.length > 1 && !args[1]?.includes('#')) {
+    if (hasOtherArgs) {
       const [batch, page, batchSize] = args?.[1]?.split(/[,/_-]/) ?? [];
       option.batch = Number(batch) ?? 0;
       option.page = Number(page) ?? 0;
@@ -31,12 +32,13 @@ const echoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
   } catch (e) {
     ctx.reply('参数有误！');
   }
-
-  if (state === OperateState.Fail) return ctx.reply(msg ?? 'unknown error', { parse_mode: 'HTML' });
+  const customTags = hasOtherArgs ? args.slice(2) : args.slice(1);
+  console.log('======= customTags =======\n', customTags);
+  if (hasOtherArgs) if (state === OperateState.Fail) return ctx.reply(msg ?? 'unknown error', { parse_mode: 'HTML' });
 
   if (!artworksInfo?.length || !artworksInfo[0]) return ctx.reply('出错了？未找到合适的图片');
 
-  await ctx.wait('正在获取图片信息并下载图片，请稍后~~');
+  await ctx.wait('正在获取图片信息并下载图片，请稍等~~');
 
   // console.log('======= option =======\n', option);
 

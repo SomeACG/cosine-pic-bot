@@ -38,6 +38,7 @@ export type ArtworkInfo = {
   url_origin: string;
   size: ImageSize;
   raw_tags?: string[];
+  custom_tags?: string[];
   artist: Artist;
   extension: string; // 图片后缀名
 };

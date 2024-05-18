@@ -15,16 +15,18 @@ function genArtistUrl(artist: Artist) {
 }
 
 export function infoCmdCaption(artwork_info: ArtworkInfo) {
-  let caption = '图片下载成功!\n';
-  if (artwork_info.title) caption += `<b>作品标题:</b> ${encodeHtmlChars(artwork_info.title)}\n`;
-  if (artwork_info.desc) caption += `<b>作品描述:</b> <code>${artwork_info.desc}</code>\n`;
-  if (artwork_info.artist) {
-    caption += `<b>画师主页:</b> `;
-    caption += `<a href="${genArtistUrl(artwork_info.artist)}">${artwork_info.artist.name}</a>\n`;
+  const { title, desc, artist, raw_tags, post_url } = artwork_info;
+  let caption = '';
+  if (title) caption += `<b>${encodeHtmlChars(title)}</b>\n`;
+  if (desc) caption += `<blockquote>${encodeHtmlChars(desc)}</blockquote>\n`;
+  if (artist) {
+    caption += `<a href="${post_url}">Source</a> by <a href="${genArtistUrl(artwork_info.artist)}">${
+      artwork_info.artist.name
+    }</a>\n`;
   }
-  if (artwork_info.raw_tags && artwork_info.raw_tags.length > 0) {
+  if (raw_tags?.length) {
     caption += '<b>原始标签:</b> ';
-    caption += artwork_info.raw_tags.map((str) => `#${str}`).join(' ');
+    caption += raw_tags.map((str) => `#${str}`).join(' ');
     caption += '\n';
   }
   caption += `<b>尺寸:</b> ${artwork_info.size.width}x${artwork_info.size.height}`;
