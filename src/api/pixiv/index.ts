@@ -36,7 +36,6 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Art
       ? unique(
           illust.tags.tags.map((item) => {
             if (item.tag === 'R-18') item.tag = 'R18';
-            console.log('======= rawTag tag =======\n', item.tag);
             const invalidReg = // eslint-disable-next-line no-irregular-whitespace
               /[\s!"$%&'()*+,-./:;<=>?@[\]^`{|}~．！？｡。＂＃＄％＆＇（）＊＋, －／：；＜＝＞＠［＼］＾＿｀｛｜｝～｟｠｢｣､　、〃〈〉《》「」『』【】〔〕〖〗〘〙〚〛〜〝〞〟〰〾〿–—‘’‛“”„‟…‧﹏﹑﹔·]/g;
             item.tag = item.tag?.replace(invalidReg, '');
@@ -78,6 +77,8 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Art
       size: size,
       raw_tags: rawTags,
       extension: extension ?? 'jpg',
+      r18: illust.xRestrict === 1,
+      ai: illust.aiType === 2,
       artist: {
         type: Platform.Pixiv,
         uid: illust.userId,

@@ -29,7 +29,7 @@ export type Artwork = {
 };
 
 export type ArtworkInfo = {
-  pid: string; // 可能是推特的id也可能是pixiv的pid 试情况决定
+  pid: string; // 可能是推特的 id 也可能是 pixiv 的 pid 视情况决定
   source_type: Platform;
   post_url: string;
   title?: string;
@@ -41,6 +41,10 @@ export type ArtworkInfo = {
   custom_tags?: string[];
   artist: Artist;
   extension: string; // 图片后缀名
+
+  // platform info
+  ai?: boolean;
+  r18?: boolean;
 };
 
 export type Artist = {

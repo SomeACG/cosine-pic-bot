@@ -2,7 +2,7 @@ import { WrapperContext } from '@/bot/wrappers/command-wrapper';
 import { OperateState } from '@/constants/enum';
 import { getArtworks } from '@/utils/bot';
 import { CommandMiddleware } from 'grammy';
-import { parseOptions, processArtworks } from './utils';
+import { parseOptions, processArtworks } from '../utils';
 
 // /echo url [?batch_?page] [?#tag1] [?#tag2]
 // eg: /echo https://www.pixiv.net/artworks/118299613 0_0  #tag1 #tag2 跟没传一样效果，尝试全发

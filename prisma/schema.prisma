@@ -14,7 +14,7 @@ model Image {
   create_time DateTime?
   platform    String?
   title       String?
-  page        Int? // 第几张图
+  page        Int? // 第几张图 twitter 从1开始 pixiv从0开始
   size        Int? // 图片大小 单位 byte
   filename    String? // 最终存的实际名字 xxx.png 等
   author      String? // 作者昵称 p站是名字，推特是handle(@xxx)
@@ -23,11 +23,11 @@ model Image {
   extension   String? // 拓展名
   rawurl      String? // 原始 url （Source）
   thumburl    String? // 缩略图 实际上没有用到
-  r18         Boolean?
   width       Int? // px
   height      Int? // px
-  guest       Boolean? // echo
-  ai          Boolean?
+  guest       Boolean?  @default(false)
+  r18         Boolean?  @default(false)
+  ai          Boolean?  @default(false)
 
   @@map("images")
 }
