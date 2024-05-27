@@ -1,6 +1,7 @@
 import { WrapperContext } from '@/bot/wrappers/command-wrapper';
-import { THUMB_DIR } from '@/constants';
+import { BOT_CHANNEL_ID, THUMB_DIR } from '@/constants';
 import { CommandType } from '@/constants/enum';
+import { globalAwaitReplyObj } from '@/constants/globalData';
 import { ArtworkInfo } from '@/types/Artwork';
 import { downloadFileArray, getDirByCmdType } from '@/utils/bot';
 import { infoCmdCaption } from '@/utils/caption';
@@ -62,10 +63,15 @@ export async function postMedia({
   );
   const originMedias = originFiles.map((file) => InputMediaBuilder.document(file));
 
-  await ctx.replyWithMediaGroup(thumbMedias, {
-    reply_to_message_id: ctx.message?.message_id,
-  });
-  await ctx.replyWithMediaGroup(originMedias, {
-    reply_to_message_id: ctx.message?.message_id,
-  });
+  if (cmdType === CommandType.Post) {
+    const res = await ctx.api.sendMediaGroup(BOT_CHANNEL_ID, thumbMedias);
+    globalAwaitReplyObj[res[0]?.message_id ?? 0] = { medias: originMedias }; // 等监听到 再回复
+  } else {
+    await ctx.replyWithMediaGroup(thumbMedias, {
+      reply_to_message_id: ctx.message?.message_id,
+    });
+    await ctx.replyWithMediaGroup(originMedias, {
+      reply_to_message_id: ctx.message?.message_id,
+    });
+  }
 }

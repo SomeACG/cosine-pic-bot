@@ -1,7 +1,9 @@
-import { ADMIN_CHAT_IDS, BOT_TOKEN } from '@/constants';
+import { ADMIN_CHAT_IDS, BOT_CHANNEL_COMMENT_GROUP_ID, BOT_TOKEN } from '@/constants';
+import { globalAwaitReplyObj } from '@/constants/globalData';
 import { prisma } from '@/utils/db';
 import logger from '@/utils/logger';
 import { Bot, GrammyError, HttpError } from 'grammy';
+import { MessageOriginChannel } from 'grammy/types';
 import echoCommand from './commands/echo';
 import postCommand from './commands/post';
 import authGuard from './guards/authGuard';
@@ -34,6 +36,19 @@ bot.command('echo', echoCommand);
 bot.command('post', authGuard, postCommand);
 // 设置命令
 bot.api.setMyCommands(commands);
+
+bot.on('message:forward_origin:channel', async (ctx) => {
+  // 评论区回复原图
+  if (!ctx?.message?.is_automatic_forward) return;
+  const fromID = (ctx?.update?.message?.forward_origin as MessageOriginChannel)?.message_id;
+  const needReplyID = ctx?.update?.message?.message_id;
+  const target = globalAwaitReplyObj?.[fromID];
+  if (!target) return;
+  await ctx.api.sendMediaGroup(BOT_CHANNEL_COMMENT_GROUP_ID, target.medias, {
+    reply_to_message_id: needReplyID,
+  });
+  globalAwaitReplyObj[fromID] = null;
+});
 
 bot.catch((err) => {
   const ctx = err.ctx;
