@@ -30,7 +30,7 @@ export default async function getTwitterArtworkInfo(
       pid: tweet.id,
       source_type: Platform.Twitter,
       post_url: post_url,
-      title: desc, // TODO: 历史遗留 也待重构
+      desc,
       url_thumb: photo.url + '?name=medium',
       url_origin: photo.url + '?name=orig',
       extension: getUrlFileExtension(photo.url) ?? 'jpg',

@@ -37,7 +37,7 @@ export const processArtworks = async (
     const { totalPage, res: chunkRes } = chunkMedias(artworksInfo, batchSize);
     const commonOpts = { ctx, customTags, option, totalPage, cmdType };
     const userInfo: PostUserInfo = {
-      userid: ctx?.from?.id,
+      userid: ctx?.from?.id ? BigInt(ctx.from.id) : undefined,
       username: ctx?.from?.username ? `@${ctx.from.username}` : undefined,
     };
     if (cmdType === CommandType.Post) saveArtworkInfo(artworksInfo, userInfo);

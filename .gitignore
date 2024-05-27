@@ -132,6 +132,7 @@ dist
 
 # else
 downloads/
+download/
 temp/
 thumb/
 old/

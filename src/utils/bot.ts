@@ -175,13 +175,13 @@ export async function saveArtworkInfo(artworks: ArtworkInfo[], userInfo?: PostUs
     if (!artworks?.length) return;
     const res = await prisma.image.createMany({
       data: artworks.map((artwork, idx) => {
-        const { title, size, source_type, pid, extension, artist, url_thumb, url_origin, r18, ai } = artwork;
+        const { title, desc, size, source_type, pid, extension, artist, url_thumb, url_origin, r18, ai } = artwork;
         const page = source_type === Platform.Pixiv ? idx : idx + 1;
         const imgInfo: Prisma.ImageCreateManyInput = {
           ...userInfo,
           create_time: new Date(),
           platform: source_type,
-          title,
+          title: title ?? desc, // TODO: 历史遗留, twitter内容之前是用 title 存 也待重构 (2024-05-28)
           page,
           width: size.width,
           height: size.height,
@@ -215,7 +215,6 @@ export async function saveArtworkInfo(artworks: ArtworkInfo[], userInfo?: PostUs
         return false;
       })
       .map(({ tag, ...rest }) => ({ ...rest, tag: '#' + tag })); // TODO: 保留和原数据库的一致性，后续需要重构这坨历史遗留数据
-    console.log('======= uniqueTags =======\n', uniqueTags);
     await prisma.imageTag.createMany({
       data: uniqueTags,
     });

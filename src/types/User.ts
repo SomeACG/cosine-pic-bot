@@ -1,5 +1,5 @@
 export type PostUserInfo = {
   // 多平台通用的参数
-  userid?: number;
+  userid?: bigint;
   username?: string;
 };
