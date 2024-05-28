@@ -17,7 +17,7 @@ const createNewTable = `
     id          INTEGER PRIMARY KEY AUTOINCREMENT,
     userid      BIGINT,
     username    TEXT,
-    create_time INTEGER,
+    create_time BIGINT,
     platform    TEXT,
     title       TEXT,
     page        INTEGER,
@@ -29,19 +29,24 @@ const createNewTable = `
     extension   TEXT,
     rawurl      TEXT,
     thumburl    TEXT,
-    r18         BOOLEAN,
     width       INTEGER,
     height      INTEGER,
-    guest       BOOLEAN,
-    ai          BOOLEAN
+    guest       Boolean,
+    r18         Boolean,
+    ai          Boolean
   );
 `;
 
 // 复制数据到新表
 const copyData = `
-  INSERT INTO images_new (id, userid, username, create_time, platform, title, page, size, filename, author, authorid, pid, extension, rawurl, thumburl, r18, width, height, guest, ai)
-  SELECT id, userid, username, create_time, platform, title, page, size, filename, author, authorid, pid, extension, rawurl, thumburl, r18, width, height, guest, ai
-  FROM images;
+INSERT INTO images_new (id, userid, username, create_time, platform, title, page, size, filename, author, authorid, pid, extension, rawurl, thumburl, r18, width, height, guest, ai)
+SELECT id, userid, username, create_time,
+  CASE
+    WHEN platform = 'Pixiv' THEN 'pixiv'
+    ELSE platform
+  END as platform,
+  title, page, size, filename, author, authorid, pid, extension, rawurl, thumburl, r18, width, height, guest, ai
+FROM images;
 `;
 
 // 删除旧表
@@ -93,7 +98,7 @@ db.serialize(() => {
     rows.forEach((row) => {
       const { id, create_time } = row;
       const createTimeObj = new Date(create_time);
-      const createTimeTimestamp = Math.floor(createTimeObj.getTime() / 1000);
+      const createTimeTimestamp = Math.floor(createTimeObj.valueOf());
 
       db.run('UPDATE images SET create_time = ? WHERE id = ?', [createTimeTimestamp, id], (err) => {
         if (err) {

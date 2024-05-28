@@ -2,7 +2,7 @@
 //   DIRECT_POST = 'direct_post',
 // }
 export enum Platform {
-  Pixiv = 'pixiv', // TODO: change to pixiv in database
+  Pixiv = 'pixiv',
   Twitter = 'twitter',
 }
 
@@ -13,4 +13,9 @@ export enum OperateState {
 export enum CommandType {
   Echo = 'echo',
   Post = 'post',
+  Submit = 'submit', // 通过投稿
+}
+
+export enum BotMenuName {
+  SUBMIT = 'submit',
 }

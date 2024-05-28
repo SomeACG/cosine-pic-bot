@@ -1,9 +1,13 @@
-import { ADMIN_CHAT_IDS, BOT_TOKEN } from '@/constants';
+import { ADMIN_CHAT_IDS, BOT_CHANNEL_COMMENT_GROUP_ID, BOT_TOKEN } from '@/constants';
+import { globalAwaitReplyObj } from '@/constants/globalData';
 import { prisma } from '@/utils/db';
 import logger from '@/utils/logger';
 import { Bot, GrammyError, HttpError } from 'grammy';
+import { MessageOriginChannel } from 'grammy/types';
+import deleteCommand from './commands/delete';
 import echoCommand from './commands/echo';
 import postCommand from './commands/post';
+import submitCommand, { submitMenu } from './commands/submit';
 import authGuard from './guards/authGuard';
 import { WrapperContext } from './wrappers/command-wrapper';
 
@@ -14,9 +18,11 @@ const bot = new Bot(BOT_TOKEN, {
 const commands = [
   { command: 'start', description: '显示欢迎信息～' },
   { command: 'help', description: '显示帮助～' },
-  { command: 'echo', description: '显示 Post 预览，形式为 /echo url [?batch_?page]  [?#tag1]  [?#tag2]' },
-  { command: 'post', description: '(admin) 发图到频道，形式为 /post url #tag1 #tag2 （暂未开放）' },
-  // { command: 'recommend', description: '投稿，形式为 /recommend url #tag1 #tag2' },
+  { command: 'echo', description: '显示 Post 预览，形式为 /echo url [?batch_?page_?batchSize] [?#tag1]  [?#tag2]' },
+  { command: 'submit', description: '投稿，形式为 /recommend url #tag1 #tag2' },
+  { command: 'post', description: '(admin) 发图到频道，形式为 /post url #tag1 #tag2' },
+  { command: 'del', description: '(admin) 删除图片信息（标记为未发过） /del url' },
+  // { command: 'tag', description: '(admin) 给图片补 tag，回复图片消息或者带着 url，形式为  /tag [?url] #tag1 #tag2' },
   // { command: 'random', description: '随机图片' },
   // { command: 'mark_dup', description: '(admin) 标记该图片已被发送过，形式为 /mark_dup url ' },
   // { command: 'unmark_dup', description: '(admin) 在频道评论区回复，形式为 /unmark_dup url ' },
@@ -29,11 +35,26 @@ bot.command('help', (ctx) => {
   }, '');
   return ctx.reply('命令列表：\n' + contents);
 });
-
+bot.use(submitMenu);
+bot.command('submit', submitCommand);
 bot.command('echo', echoCommand);
 bot.command('post', authGuard, postCommand);
+bot.command('del', authGuard, deleteCommand);
 // 设置命令
 bot.api.setMyCommands(commands);
+
+// 监听转发到群组的频道消息，评论区回复原图
+bot.on('message:forward_origin:channel', async (ctx) => {
+  if (!ctx?.message?.is_automatic_forward) return;
+  const fromID = (ctx?.update?.message?.forward_origin as MessageOriginChannel)?.message_id;
+  const needReplyID = ctx?.update?.message?.message_id;
+  const target = globalAwaitReplyObj?.[fromID];
+  if (!target) return;
+  await ctx.api.sendMediaGroup(BOT_CHANNEL_COMMENT_GROUP_ID, target.medias, {
+    reply_to_message_id: needReplyID,
+  });
+  globalAwaitReplyObj[fromID] = null;
+});
 
 bot.catch((err) => {
   const ctx = err.ctx;
