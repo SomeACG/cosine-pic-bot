@@ -6,7 +6,7 @@ import { parseOptions, processArtworks } from '../utils';
 
 const postCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
   const args = ctx.command.args;
-  if (!args?.length) return ctx.reply('请携带要预览的 url');
+  if (!args?.length) return ctx.reply('请携带要发送的 url');
 
   const url = args.shift() ?? ''; // TODO: Url validation
 
