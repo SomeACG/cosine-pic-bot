@@ -1,6 +1,6 @@
 import getPixivArtworkInfo from '@/api/pixiv';
 import getTwitterArtworkInfo from '@/api/twitter-web-api/getTwitterArtworkInfo';
-import { DOWNLOAD_DIR, TEMP_DIR, THUMB_DIR } from '@/constants';
+import { DEV_MODE, DOWNLOAD_DIR, TEMP_DIR, THUMB_DIR } from '@/constants';
 import { CommandType, OperateState, Platform } from '@/constants/enum';
 import { ArtworkInfo } from '@/types/Artwork';
 import { PostUserInfo } from '@/types/User';
@@ -141,7 +141,7 @@ export async function getArtworks(url: string, cmdType: CommandType = CommandTyp
   if (!artInfo?.pid) return { state: OperateState.Fail, msg: 'URL 出错了？未找到合适的图片' };
   const { pid, type } = artInfo;
   // 要发的，查重
-  if (cmdType === CommandType.Post) {
+  if (cmdType === CommandType.Post && !DEV_MODE) {
     const res = await prisma.image.findFirst({ where: { pid } });
     if (res?.create_time) {
       logger.info(`图片 ${pid} 已经存在于数据库中`);

@@ -10,6 +10,7 @@ export const TEMP_DIR = path.resolve(__dirname, '../../', process.env.TEMP_DIR |
 export const DOWNLOAD_DIR = path.resolve(__dirname, '../../', process.env.DOWNLOAD_DIR || 'download');
 export const THUMB_DIR = path.resolve(__dirname, '../../', process.env.THUMB_DIR || 'thumb');
 
+export const DEV_MODE = process.env.DEV_MODE ?? false;
 export const BOT_CHANNEL_ID = process.env.BOT_CHANNEL_ID ?? '';
 export const BOT_CHANNEL_COMMENT_GROUP_ID = process.env.BOT_CHANNEL_COMMENT_GROUP_ID ?? '';
 

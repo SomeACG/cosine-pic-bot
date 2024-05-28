@@ -66,6 +66,9 @@ export async function postMedia({
   if (cmdType === CommandType.Post) {
     const res = await ctx.api.sendMediaGroup(BOT_CHANNEL_ID, thumbMedias);
     globalAwaitReplyObj[res[0]?.message_id ?? 0] = { medias: originMedias }; // 等监听到 再回复
+    const chatID = res[0]?.sender_chat?.id.toString().replace(/^-100/, '');
+    const msgID = res[0]?.message_id;
+    await ctx.directlyReply(`成功发送～ <a href="${`https://t.me/c/${chatID}/${msgID}`}">点击查看</a>`, 'HTML');
   } else {
     await ctx.replyWithMediaGroup(thumbMedias, {
       reply_to_message_id: ctx.message?.message_id,
