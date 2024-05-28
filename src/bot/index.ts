@@ -7,6 +7,7 @@ import { MessageOriginChannel } from 'grammy/types';
 import deleteCommand from './commands/delete';
 import echoCommand from './commands/echo';
 import postCommand from './commands/post';
+import submitCommand, { submitMenu } from './commands/submit';
 import authGuard from './guards/authGuard';
 import { WrapperContext } from './wrappers/command-wrapper';
 
@@ -18,10 +19,10 @@ const commands = [
   { command: 'start', description: '显示欢迎信息～' },
   { command: 'help', description: '显示帮助～' },
   { command: 'echo', description: '显示 Post 预览，形式为 /echo url [?batch_?page_?batchSize] [?#tag1]  [?#tag2]' },
+  { command: 'submit', description: '投稿，形式为 /recommend url #tag1 #tag2' },
   { command: 'post', description: '(admin) 发图到频道，形式为 /post url #tag1 #tag2' },
   { command: 'del', description: '(admin) 删除图片信息（标记为未发过） /del url' },
   // { command: 'tag', description: '(admin) 给图片补 tag，回复图片消息或者带着 url，形式为  /tag [?url] #tag1 #tag2' },
-  // { command: 'recommend', description: '投稿，形式为 /recommend url #tag1 #tag2' },
   // { command: 'random', description: '随机图片' },
   // { command: 'mark_dup', description: '(admin) 标记该图片已被发送过，形式为 /mark_dup url ' },
   // { command: 'unmark_dup', description: '(admin) 在频道评论区回复，形式为 /unmark_dup url ' },
@@ -34,7 +35,8 @@ bot.command('help', (ctx) => {
   }, '');
   return ctx.reply('命令列表：\n' + contents);
 });
-
+bot.use(submitMenu);
+bot.command('submit', submitCommand);
 bot.command('echo', echoCommand);
 bot.command('post', authGuard, postCommand);
 bot.command('del', authGuard, deleteCommand);

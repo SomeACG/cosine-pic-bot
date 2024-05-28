@@ -8,6 +8,9 @@ dependencies:
   '@aws-sdk/client-s3':
     specifier: ^3.490.0
     version: 3.490.0
+  '@grammyjs/menu':
+    specifier: ^1.2.1
+    version: 1.2.1(grammy@1.22.4)
   '@napi-rs/image':
     specifier: ^1.9.2
     version: 1.9.2
@@ -1086,6 +1089,15 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /@grammyjs/menu@1.2.1(grammy@1.22.4):
+    resolution: {integrity: sha512-0LV9A/UukfF46N0ceSqG1RbdCjhvB2u1MNHNkE7eRD3GVlffOBnR+MS2ESE9mSBleT9OjRV6imA7QZ57QBktOQ==, tarball: https://registry.npmjs.org/@grammyjs/menu/-/menu-1.2.1.tgz}
+    engines: {node: '>=12.20.0 || >=14.13.1'}
+    peerDependencies:
+      grammy: ^1.0.0
+    dependencies:
+      grammy: 1.22.4
+    dev: false
 
   /@grammyjs/types@3.6.2:
     resolution: {integrity: sha512-7OswNRPN72qFUWhysNrY96+5LKBQXgxqw0iNbleYV7G8GB6ZPVdkwFMIZn1Fda2iRKMYT6S6Sxuel0465VGtHQ==, tarball: https://registry.npmjs.org/@grammyjs/types/-/types-3.6.2.tgz}
@@ -5595,6 +5607,7 @@ packages:
 
   /util-deprecate@1.0.2:
     resolution: {integrity: sha512-EPD5q1uXyFxJpCrLnCc1nHnq3gOa6DZBocAIiI2TaSCA7VCJ1UJDMagCzIkXNsUYfD1daK//LTEQ8xiIbrHtcw==, tarball: https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz}
+    requiresBuild: true
     dev: false
 
   /util@0.12.5:

@@ -2,7 +2,16 @@ import { CommandEntity } from '@/constants/types';
 import logger from '@/utils/logger';
 import { parseParams } from '@/utils/param-parser';
 import { Api, Context } from 'grammy';
-import { Message, ParseMode, Update, UserFromGetMe } from 'grammy/types';
+import {
+  ForceReply,
+  InlineKeyboardMarkup,
+  Message,
+  ParseMode,
+  ReplyKeyboardMarkup,
+  ReplyKeyboardRemove,
+  Update,
+  UserFromGetMe,
+} from 'grammy/types';
 
 export class WrapperContext extends Context {
   waiting_message?: Message;
@@ -29,10 +38,15 @@ export class WrapperContext extends Context {
       }
     }, timeout);
   }
-  async directlyReply(message: string, parse_mode?: ParseMode) {
+  async directlyReply(
+    message: string,
+    parse_mode?: ParseMode,
+    reply_markup?: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply,
+  ) {
     return await this.reply(message, {
       reply_to_message_id: this.chat?.type === 'private' ? undefined : this.message?.message_id,
       parse_mode: parse_mode,
+      reply_markup,
     });
   }
   async wait(message: string, auto_delete?: boolean, parse_mode?: ParseMode) {

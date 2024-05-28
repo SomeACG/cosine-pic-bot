@@ -5,6 +5,7 @@ dotenv.config();
 
 export const BOT_TOKEN = process.env.BOT_TOKEN ?? '';
 export const ADMIN_CHAT_IDS = (process.env.ADMIN_CHAT_IDS ? JSON.parse(process.env.ADMIN_CHAT_IDS) : []) as number[];
+export const ADMIN_USERNAME = process.env.ADMIN_USERNAME ?? '';
 export const PIXIV_COOKIE = process.env.PIXIV_COOKIE || '';
 export const TEMP_DIR = path.resolve(__dirname, '../../', process.env.TEMP_DIR || 'temp');
 export const DOWNLOAD_DIR = path.resolve(__dirname, '../../', process.env.DOWNLOAD_DIR || 'download');

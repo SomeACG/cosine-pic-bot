@@ -13,4 +13,9 @@ export enum OperateState {
 export enum CommandType {
   Echo = 'echo',
   Post = 'post',
+  Submit = 'submit', // 通过投稿
+}
+
+export enum BotMenuName {
+  SUBMIT = 'submit',
 }

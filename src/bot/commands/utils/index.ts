@@ -8,10 +8,10 @@ import { saveArtworkInfo } from '@/utils/bot';
 import { PostUserInfo } from '@/types/User';
 
 // Helper function to parse options from arguments
-export const parseOptions = (args: string[]): { batch: number; page: number; batchSize: number } => {
+export const parseOptions = (args?: string[]): { batch: number; page: number; batchSize: number } => {
   try {
     const option = { batch: 0, page: 0, batchSize: 6 };
-    if (args?.length > 0 && !args[0]?.includes('#')) {
+    if (args?.length && !args[0]?.includes('#')) {
       const [batch, page, batchSize] = args.shift()?.split(/[,/_-]/) ?? [];
       option.batch = Number(batch) ?? 0;
       option.page = Number(page) ?? 0;
@@ -31,16 +31,20 @@ export const processArtworks = async (
   customTags: string[],
   cmdType: CommandType = CommandType.Echo,
 ) => {
-  await ctx.wait('正在获取图片信息并下载图片，请稍等~~');
+  if (cmdType !== CommandType.Submit) await ctx.wait('正在获取图片信息并下载图片，请稍等~~');
   try {
     const { batch, page, batchSize } = option;
     const { totalPage, res: chunkRes } = chunkMedias(artworksInfo, batchSize);
-    const commonOpts = { ctx, customTags, option, totalPage, cmdType };
+    const from = cmdType === CommandType.Submit ? ctx.update.callback_query?.message?.reply_to_message?.from : ctx?.from;
+    const userID = from?.id;
+    const username = from?.username;
     const userInfo: PostUserInfo = {
-      userid: ctx?.from?.id ? BigInt(ctx.from.id) : undefined,
-      username: ctx?.from?.username ? `@${ctx.from.username}` : undefined,
+      userid: userID ? BigInt(userID) : undefined,
+      username: username ? `@${username}` : undefined,
     };
-    if (cmdType === CommandType.Post) saveArtworkInfo(artworksInfo, userInfo);
+    const commonOpts = { ctx, customTags, option, totalPage, cmdType, userInfo };
+    console.log('======= userInfo =======\n', userInfo);
+    if ([CommandType.Post, CommandType.Submit].includes(cmdType)) saveArtworkInfo(artworksInfo, userInfo);
 
     if (!batch) {
       if (!page) {
