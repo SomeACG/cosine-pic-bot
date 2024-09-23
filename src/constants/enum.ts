@@ -18,4 +18,5 @@ export enum CommandType {
 
 export enum BotMenuName {
   SUBMIT = 'submit',
+  LS_MANAGE = 'ls-manage',
 }

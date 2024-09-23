@@ -6,7 +6,9 @@ import { Bot, GrammyError, HttpError } from 'grammy';
 import { MessageOriginChannel } from 'grammy/types';
 import deleteCommand from './commands/delete';
 import echoCommand from './commands/echo';
+import lsCommand, { lsManageMenu } from './commands/ls';
 import postCommand from './commands/post';
+import stashCommand from './commands/stash';
 import submitCommand, { submitMenu } from './commands/submit';
 import authGuard from './guards/authGuard';
 import { WrapperContext } from './wrappers/command-wrapper';
@@ -22,6 +24,12 @@ const commands = [
   { command: 'submit', description: '投稿，形式为 /recommend url #tag1 #tag2' },
   { command: 'post', description: '(admin) 发图到频道，形式为 /post url #tag1 #tag2' },
   { command: 'del', description: '(admin) 删除图片信息（标记为未发过） /del url' },
+  {
+    command: 'stash',
+    description:
+      '(admin) 暂存链接，可以通过/ls查看之前暂存未发送的链接，形式为 /stash url [?batch_?page_?batchSize] [?#tag1] [?#tag2]',
+  },
+  { command: 'ls', description: '(admin) 查看之前暂存未发送的链接' },
   // { command: 'tag', description: '(admin) 给图片补 tag，回复图片消息或者带着 url，形式为  /tag [?url] #tag1 #tag2' },
   // { command: 'random', description: '随机图片' },
   // { command: 'mark_dup', description: '(admin) 标记该图片已被发送过，形式为 /mark_dup url ' },
@@ -36,10 +44,14 @@ bot.command('help', (ctx) => {
   return ctx.reply('命令列表：\n' + contents);
 });
 bot.use(submitMenu);
+bot.use(lsManageMenu);
 bot.command('submit', submitCommand);
 bot.command('echo', echoCommand);
 bot.command('post', authGuard, postCommand);
 bot.command('del', authGuard, deleteCommand);
+bot.command('stash', authGuard, stashCommand);
+bot.command('ls', authGuard, lsCommand);
+
 // 设置命令
 bot.api.setMyCommands(commands);
 

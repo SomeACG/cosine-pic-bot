@@ -20,9 +20,9 @@ export function infoCmdCaption(artwork_info: ArtworkInfo) {
   if (title) caption += `<b>${encodeHtmlChars(title)}</b>\n`;
   if (desc) caption += `<blockquote>${encodeHtmlChars(desc)}</blockquote>\n`;
   if (artist) {
-    caption += `<a href="${post_url}">Source</a> by <a href="${genArtistUrl(artwork_info.artist)}">${
-      artwork_info.artist.name
-    }</a>\n`;
+    caption += `<a href="${post_url}">Source</a> by <a href="${genArtistUrl(
+      artwork_info.artist,
+    )}">${artwork_info?.source_type} @${artwork_info.artist.name}</a>\n`;
   }
   if (raw_tags?.length) {
     caption += '<b>原始标签:</b> ';

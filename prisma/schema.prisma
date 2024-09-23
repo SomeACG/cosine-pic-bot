@@ -39,3 +39,11 @@ model ImageTag {
 
   @@map("imagetags")
 }
+
+model Stash {
+  id           Int       @id @default(autoincrement())
+  original_msg String?
+  create_time  DateTime?
+
+  @@map("stash")
+}
