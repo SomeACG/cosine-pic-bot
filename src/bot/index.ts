@@ -9,9 +9,10 @@ import echoCommand from './commands/echo';
 import lsCommand, { lsManageMenu } from './commands/ls';
 import postCommand from './commands/post';
 import stashCommand from './commands/stash';
-import submitCommand, { submitMenu } from './commands/submit';
+import submitCommand, { handleSubmit, submitMenu } from './commands/submit';
 import authGuard from './guards/authGuard';
 import { WrapperContext } from './wrappers/command-wrapper';
+import { extractUrls } from '@/utils/url';
 
 const bot = new Bot(BOT_TOKEN, {
   ContextConstructor: WrapperContext,
@@ -68,6 +69,20 @@ bot.on('message:forward_origin:channel', async (ctx) => {
   globalAwaitReplyObj[fromID] = null;
 });
 
+// 监听包含 #投稿 的消息
+bot.on('message:text', async (ctx) => {
+  const text = ctx.message.text;
+  if (!text.includes('#投稿')) return;
+
+  const urls = extractUrls(text);
+  if (!urls?.length) return ctx.reply('未找到有效的链接');
+
+  const url = urls[0];
+  if (!url) return ctx.reply('未找到有效的链接');
+
+  return handleSubmit(ctx, url);
+});
+
 bot.catch((err) => {
   const ctx = err.ctx;
   let errorMsg = '处理消息 ' + ctx.update.update_id + ' 时出错:\n```\n';
@@ -78,7 +93,7 @@ bot.catch((err) => {
   } else if (e instanceof HttpError) {
     errorMsg += 'Could not contact Telegram:' + e;
   } else {
-    errorMsg += 'Unknown error:' + (e as Error)?.message ?? e;
+    errorMsg += 'Unknown error:' + ((e as Error)?.message ?? String(e));
   }
   errorMsg += '\n```';
   console.error(errorMsg);

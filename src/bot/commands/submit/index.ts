@@ -25,24 +25,30 @@ export const submitMenu = new Menu<WrapperContext>(BotMenuName.SUBMIT).text('✅
     await postByUrl(ctx, urls[0]);
   }
 });
-// 投稿
-const submitCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
-  const args = ctx.command.args;
-  if (!args?.length) return ctx.reply('请携带要投稿的 url');
 
-  const url = args.shift() ?? ''; // TODO: Url validation
-
+export async function handleSubmit(ctx: WrapperContext, url: string) {
   const { state, msg, result: artworksInfo } = await getArtworks(url);
 
   if (state === OperateState.Fail) return ctx.reply(msg ?? 'unknown error', { parse_mode: 'HTML' });
 
   if (!artworksInfo?.length || !artworksInfo[0]) return ctx.reply('出错了？未找到合适的图片');
+
   await ctx.reply(`感谢投稿! 正在召唤 ${ADMIN_USERNAME}\n` + infoCmdCaption(artworksInfo[0]), {
     parse_mode: 'HTML',
     reply_markup: submitMenu,
     reply_parameters: { message_id: ctx.message?.message_id ?? 0 },
   });
+
   return ctx.deleteWaiting();
+}
+
+// 投稿
+const submitCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
+  const args = ctx.command.args;
+  if (!args?.length) return ctx.reply('请携带要投稿的 url');
+
+  const url = args.shift() ?? '';
+  return handleSubmit(ctx, url);
 };
 
 export default submitCommand;
