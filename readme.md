@@ -6,7 +6,7 @@
 
 ## 开发步骤
 
-如果是 NahidaBot 迁移过来，把data.db 放到prisma文件夹下后运行
+如果是 NahidaBot 迁移过来，把 data.db 放到prisma文件夹下后运行
 
 ```bash
 pnpm db:convert # 原本的老数据进行转换
@@ -27,7 +27,6 @@ pnpm start # 直接终端起方便调试，可以 Ctrl+C 中断
 
 ```bash
 pnpm pm2:stop # = pm2 stop ecosystem.config.js
-pnpm pm2:restart # = pm2 restart ecosystem.config.js
 pnpm pm2:restart # = pm2 restart ecosystem.config.js
 pnpm pm2:log # = pm2 log ecosystem.config.js
 ```
@@ -52,7 +51,7 @@ THUMB_DIR=thumb                 # 缩略图 作为10M以下的Photo发出去
 PIXIV_COOKIE=                   # Pixiv 的网站 Cookie
 ```
 
-s3 上传图片 / docker 部署日后再说，先达到能用的程度。
+s3 上传图片 & docker 部署日后再说，先达到能用的程度。
 
 ## 已实现功能
 
