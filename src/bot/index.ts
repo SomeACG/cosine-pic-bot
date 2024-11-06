@@ -9,7 +9,7 @@ import echoCommand from './commands/echo';
 import lsCommand, { lsManageMenu } from './commands/ls';
 import postCommand from './commands/post';
 import stashCommand from './commands/stash';
-import submitCommand, { submitMenu } from './commands/submit';
+import submitCommand, { handleSubmit, submitMenu } from './commands/submit';
 import authGuard from './guards/authGuard';
 import { WrapperContext } from './wrappers/command-wrapper';
 import { extractUrls } from '@/utils/url';
@@ -80,20 +80,7 @@ bot.on('message:text', async (ctx) => {
   const url = urls[0];
   if (!url) return ctx.reply('未找到有效的链接');
 
-  // Extract hashtags from text
-  const hashtags = text.match(/#[^\s#投稿]+/g) || [];
-  const tags = hashtags.filter((tag) => tag !== '#投稿').join(' ');
-
-  // Construct submit command with url and tags
-  const submitUpdate = {
-    ...ctx.update,
-    message: {
-      ...ctx.message,
-      text: `/submit ${url} ${tags}`,
-    },
-  };
-
-  return bot.handleUpdate(submitUpdate);
+  return handleSubmit(ctx, url);
 });
 
 bot.catch((err) => {
