@@ -14,7 +14,7 @@ function genArtistUrl(artist: Artist) {
   }
 }
 
-export function infoCmdCaption(artwork_info: ArtworkInfo) {
+export function infoCmdCaption(artwork_info: ArtworkInfo, saveRes?: { id: number }[]) {
   const { title, desc, artist, raw_tags, post_url, custom_tags } = artwork_info;
   let caption = '';
   if (title) caption += `<b>${encodeHtmlChars(title)}</b>\n`;
@@ -22,7 +22,7 @@ export function infoCmdCaption(artwork_info: ArtworkInfo) {
   if (artist) {
     caption += `<a href="${post_url}">Source</a> by <a href="${genArtistUrl(
       artwork_info.artist,
-    )}">${artwork_info?.source_type} @${artwork_info.artist.name}</a>\n`;
+    )}">${artwork_info?.source_type} ${artwork_info.artist.name}</a>\n`;
   }
   if (raw_tags?.length) {
     caption += '<b>原始标签:</b> ';
@@ -35,6 +35,11 @@ export function infoCmdCaption(artwork_info: ArtworkInfo) {
     caption += '\n';
   }
   caption += `<b>尺寸:</b> ${artwork_info.size.width}x${artwork_info.size.height}`;
+  const refs = saveRes?.length
+    ? saveRes.map((item) => `<a href="${`https://pic.cosine.ren/artwork/${item?.id ?? ''}`}">${item?.id}</a>`)
+    : [];
+  const refsStr = refs?.length ? refs.join(',') : '';
+  caption += `\n@CosineGallery ｜ <a href="https://pic.cosine.ren/">网站</a>${refsStr ? `｜ 本图链接 ${refsStr}` : ''}`;
 
   return caption;
 }

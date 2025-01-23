@@ -42,10 +42,11 @@ export const processArtworks = async (
       userid: userID ? BigInt(userID) : undefined,
       username: username ? `@${username}` : undefined,
     };
-    const commonOpts = { ctx, customTags, option, totalPage, cmdType, userInfo };
-    console.log('======= userInfo =======\n', userInfo);
-    if ([CommandType.Post, CommandType.Submit].includes(cmdType)) saveArtworkInfo(artworksInfo, userInfo);
+    // console.log('======= userInfo =======\n', userInfo);
+    let saveRes;
+    if ([CommandType.Post, CommandType.Submit].includes(cmdType)) saveRes = await saveArtworkInfo(artworksInfo, userInfo);
 
+    const commonOpts = { ctx, customTags, option, totalPage, cmdType, userInfo, saveRes };
     if (!batch) {
       if (!page) {
         // 0_0

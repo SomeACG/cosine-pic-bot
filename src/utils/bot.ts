@@ -173,31 +173,37 @@ export async function getArtworks(url: string, cmdType: CommandType = CommandTyp
 export async function saveArtworkInfo(artworks: ArtworkInfo[], userInfo?: PostUserInfo) {
   try {
     if (!artworks?.length) return;
-    const res = await prisma.image.createMany({
-      data: artworks.map((artwork, idx) => {
+    // SQLite 不支持 createMany，会自动转换为多个 create 操作，所以都一样
+    const imageResults = await Promise.all(
+      artworks.map(async (artwork, idx) => {
         const { title, desc, size, source_type, pid, extension, artist, url_thumb, url_origin, r18, ai } = artwork;
         const page = source_type === Platform.Pixiv ? idx : idx + 1;
-        const imgInfo: Prisma.ImageCreateManyInput = {
-          ...userInfo,
-          create_time: new Date(),
-          platform: source_type,
-          title: title ?? desc, // TODO: 历史遗留, twitter内容之前是用 title 存 也待重构 (2024-05-28)
-          page,
-          width: size.width,
-          height: size.height,
-          filename: source_type === Platform.Twitter ? `${pid}_${page}.${extension}` : `${pid}_p${page}.${extension}`,
-          author: artist.name,
-          authorid: BigInt(artist.uid ?? '0'),
-          pid,
-          extension,
-          rawurl: url_origin,
-          thumburl: url_thumb,
-          r18,
-          ai,
-        };
-        return imgInfo;
+        return await prisma.image.create({
+          data: {
+            ...userInfo,
+            create_time: new Date(),
+            platform: source_type,
+            title: title ?? desc, // TODO: 历史遗留, twitter内容之前是用 title 存 也待重构 (2024-05-28)
+            page,
+            width: size.width,
+            height: size.height,
+            filename: source_type === Platform.Twitter ? `${pid}_${page}.${extension}` : `${pid}_p${page}.${extension}`,
+            author: artist.name,
+            authorid: BigInt(artist.uid ?? '0'),
+            pid,
+            extension,
+            rawurl: url_origin,
+            thumburl: url_thumb,
+            r18,
+            ai,
+          },
+          select: {
+            id: true,
+          },
+        });
       }),
-    });
+    );
+
     const tags: Prisma.ImageTagCreateManyInput[] = artworks.reduce((prev, art) => {
       const { pid, custom_tags, raw_tags } = art;
       const tags: Prisma.ImageTagCreateManyInput[] = (raw_tags ?? []).concat(custom_tags ?? []).map((tag) => ({ tag, pid }));
@@ -215,11 +221,14 @@ export async function saveArtworkInfo(artworks: ArtworkInfo[], userInfo?: PostUs
         return false;
       })
       .map(({ tag, ...rest }) => ({ ...rest, tag: '#' + tag })); // TODO: 保留和原数据库的一致性，后续需要重构这坨历史遗留数据
+
     await prisma.imageTag.createMany({
       data: uniqueTags,
     });
-    logger.info('post createMany success, create ' + res.count + ' records');
+    logger.info('post createMany success, create ' + imageResults);
+    return imageResults;
   } catch (e) {
     logger.error(e);
+    return undefined;
   }
 }

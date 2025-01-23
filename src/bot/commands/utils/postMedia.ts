@@ -35,6 +35,7 @@ export async function postMedia({
   option,
   cmdType = CommandType.Echo,
   userInfo,
+  saveRes,
 }: {
   ctx: CommandContext<WrapperContext>;
   artworks: ArtworkInfo[];
@@ -43,8 +44,12 @@ export async function postMedia({
   totalPage?: number;
   option: { batch: number; page: number; batchSize: number };
   cmdType: CommandType;
-
   userInfo?: PostUserInfo;
+  saveRes?:
+    | {
+        id: number;
+      }[]
+    | undefined;
 }) {
   if (!artworks?.length || !artworks[0]) {
     ctx.reply('出错了？未找到合适的图片');
@@ -57,7 +62,7 @@ export async function postMedia({
   const { userid, username } = userInfo ?? {};
   const viaInfo =
     cmdType === CommandType.Submit ? `\n由 ${username ?? `<a href="tg://user?id=${userid}">匿名用户</a>`} 投稿` : '';
-  const caption = infoCmdCaption(firstImg) + getOptCaption({ currentPage, total, option }) + viaInfo;
+  const caption = infoCmdCaption(firstImg, saveRes) + getOptCaption({ currentPage, total, option }) + viaInfo;
 
   const originFileNames = await downloadFileArray(artworks, cmdType);
   const platform = artworks[0].source_type;
