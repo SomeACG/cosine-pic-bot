@@ -1,11 +1,9 @@
 import { WrapperContext } from '@/bot/wrappers/command-wrapper';
 import { CommandType, OperateState } from '@/constants/enum';
 import { getArtworks } from '@/utils/bot';
+import { backupDBToS3IfEnabled } from '@/utils/s3';
 import { CommandMiddleware } from 'grammy';
 import { parseOptions, processArtworks } from '../utils';
-import { uploadS3 } from '@/utils/s3';
-import { ENABLE_S3_BACKUP, S3_BUCKET_NAME, S3_PUBLIC_URL } from '@/constants';
-import fs from 'fs';
 
 const postCommand: CommandMiddleware<WrapperContext> = async (ctx: any) => {
   const args = ctx.command.args;
@@ -26,21 +24,7 @@ const postCommand: CommandMiddleware<WrapperContext> = async (ctx: any) => {
 
   await processArtworks(ctx, artworksInfo, option, customTags, CommandType.Post);
 
-  // 上传数据库文件到 S3 备份
-  if (ENABLE_S3_BACKUP) {
-    try {
-      const dbFile = fs.readFileSync('prisma/data.db');
-      await uploadS3(dbFile, 'data.db');
-      const s3Path = `${S3_PUBLIC_URL}/${S3_BUCKET_NAME}/data.db`;
-      await ctx.reply(`数据库备份已上传至 [S3 ☁️](${s3Path})`, { parse_mode: 'MarkdownV2' });
-    } catch (error: any) {
-      console.error('上传数据库文件失败:', error);
-      await ctx.reply(`数据库备份上传失败 ❌, 错误: \`\`\`\n${error?.message ?? '未知错误'}\n\`\`\``, {
-        parse_mode: 'MarkdownV2',
-      });
-    }
-  }
-
+  await backupDBToS3IfEnabled(ctx);
   return await ctx.deleteWaiting();
 };
 
