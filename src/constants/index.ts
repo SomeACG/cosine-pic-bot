@@ -15,7 +15,10 @@ export const DEV_MODE = process.env.DEV_MODE ?? false;
 export const BOT_CHANNEL_ID = process.env.BOT_CHANNEL_ID ?? '';
 export const BOT_CHANNEL_COMMENT_GROUP_ID = process.env.BOT_CHANNEL_COMMENT_GROUP_ID ?? '';
 
-// 暂时还没接入
+// S3 相关
 export const S3_BUCKET_NAME = process.env.S3_BUCKET_NAME || '';
 export const S3_ENDPOINT = process.env.S3_ENDPOINT || '';
 export const S3_REGION = process.env.S3_REGION || '';
+export const S3_PUBLIC_URL = process.env.S3_PUBLIC_URL || '';
+export const ITEMS_PER_PAGE = 10; // 每页显示的项目数
+export const ENABLE_S3_BACKUP = process.env.ENABLE_S3_BACKUP || false;
