@@ -1,6 +1,6 @@
 import { S3_BUCKET_NAME, S3_ENDPOINT, S3_REGION } from '@/constants';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
-import mime from 'mime';
+import mimeTypes from 'mime-types';
 
 // 配置 S3
 export const s3 = new S3Client({
@@ -20,13 +20,13 @@ export function calculateMIME(file: File | Blob | string | Buffer, key: string) 
       if (file.type) {
         return file.type;
       } else if (keyExt) {
-        return mime.getType(keyExt) ?? defaultMIME;
+        return mimeTypes.lookup(keyExt) || defaultMIME;
       } else {
         console.error('Unexpected file type', key);
         return defaultMIME;
       }
     case Buffer.isBuffer(file):
-      return keyExt ? mime.getType(keyExt) ?? defaultMIME : defaultMIME;
+      return keyExt ? mimeTypes.lookup(keyExt) || defaultMIME : defaultMIME;
     default:
       return defaultMIME;
   }
