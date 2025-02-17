@@ -16,9 +16,9 @@ const restartCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
 
   try {
     await ctx.wait('正在重启服务...');
-    await ctx.api.sendMessage(ctx.chat.id, '执行重启命令: pm2 restart cos-pic-db-sync');
     await exec('pm2 restart cos-pic-db-sync');
-    return ctx.reply('重启命令已执行');
+    await ctx.deleteWaiting();
+    return await ctx.reply('重启命令已成功执行');
   } catch (error: any) {
     return ctx.reply(`执行出错: ${error.message}`);
   }
