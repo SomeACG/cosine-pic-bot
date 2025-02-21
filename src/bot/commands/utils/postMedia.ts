@@ -62,7 +62,8 @@ export async function postMedia({
   const { userid, username } = userInfo ?? {};
   const viaInfo =
     cmdType === CommandType.Submit ? `\n由 ${username ?? `<a href="tg://user?id=${userid}">匿名用户</a>`} 投稿` : '';
-  const caption = infoCmdCaption(firstImg, saveRes) + getOptCaption({ currentPage, total, option }) + viaInfo;
+  const infoCaption = await infoCmdCaption(firstImg, saveRes);
+  const caption = infoCaption + getOptCaption({ currentPage, total, option }) + viaInfo;
 
   const originFileNames = await downloadFileArray(artworks, cmdType);
   const platform = artworks[0].source_type;

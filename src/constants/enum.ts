@@ -19,4 +19,5 @@ export enum CommandType {
 export enum BotMenuName {
   SUBMIT = 'submit',
   LS_MANAGE = 'ls-manage',
+  RANDOM_PIC = 'random-pic',
 }

@@ -32,8 +32,8 @@ export async function handleSubmit(ctx: WrapperContext, url: string) {
   if (state === OperateState.Fail) return ctx.reply(msg ?? 'unknown error', { parse_mode: 'HTML' });
 
   if (!artworksInfo?.length || !artworksInfo[0]) return ctx.reply('出错了？未找到合适的图片');
-
-  await ctx.reply(`感谢投稿! 正在召唤 ${ADMIN_USERNAME}\n` + infoCmdCaption(artworksInfo[0]), {
+  const infoCaption = await infoCmdCaption(artworksInfo[0]);
+  await ctx.reply(`感谢投稿! 正在召唤 ${ADMIN_USERNAME}\n` + infoCaption, {
     parse_mode: 'HTML',
     reply_markup: submitMenu,
     reply_parameters: { message_id: ctx.message?.message_id ?? 0 },
