@@ -3,6 +3,7 @@ import { ArtworkInfo } from '@/types/Artwork';
 import { Image } from '@prisma/client';
 import { prisma } from './db';
 import { Platform } from '@/constants/enum';
+import logger from './logger';
 
 function encodeHtmlChars(text: string) {
   return text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -63,13 +64,18 @@ export async function randomImageInfoCaption(image: Image) {
   });
   const finalTags = tags?.length ? tags.map((t) => '#' + t.tag?.replace(/#/g, '')) : [];
   // 构建消息文本
-  const messageText =
-    platform === Platform.Pixiv
-      ? `🎨 ${title ?? '无题'}\n`
-      : `<blockquote>${title ?? '无题'}</blockquote>` +
-        `<a href="${originUrl}">Source</a> by ${platform} <a href="${authorUrl}">${author}</a>\n` +
-        (finalTags?.length ? `原始标签：${finalTags.join(' ')}\n` : '') +
-        `<b>尺寸:</b>${width}x${height}\n` +
-        `@CosineGallery | <a href="https://pic.cosine.ren/artwork/${id}">本图链接</a>`;
-  return messageText;
+  try {
+    const messageText =
+      (platform === Platform.Pixiv ? `${title ?? '无题'}\n` : `<blockquote>${title ?? '无题'}</blockquote>`) +
+      `<a href="${originUrl}">Source</a> by ${platform} <a href="${authorUrl}">${author}</a>\n` +
+      (finalTags?.length ? `原始标签：${finalTags.join(' ')}\n` : '') +
+      `<b>尺寸:</b>${width}x${height}\n` +
+      `@CosineGallery | <a href="https://pic.cosine.ren/artwork/${id}">本图链接</a>`;
+    logger.info('info:' + JSON.stringify({ tags, finalTags, author, platform, pid, width, height, authorUrl, title }));
+    logger.info('messageText:' + messageText);
+    return messageText;
+  } catch (error) {
+    logger.error('Error in randomImageInfoCaption:' + error);
+    return '';
+  }
 }
