@@ -1,17 +1,16 @@
 import { ADMIN_CHAT_IDS, BOT_CHANNEL_COMMENT_GROUP_ID, BOT_TOKEN } from '@/constants';
 import { BotMenuName } from '@/constants/enum';
 import { globalAwaitReplyObj } from '@/constants/globalData';
-import { randomImageInfoCaption } from '@/utils/caption';
 import { prisma } from '@/utils/db';
 import logger from '@/utils/logger';
 import { extractUrls } from '@/utils/url';
 import { Bot, GrammyError, HttpError } from 'grammy';
-import { InlineKeyboardButton, MessageOriginChannel } from 'grammy/types';
+import { MessageOriginChannel } from 'grammy/types';
 import deleteCommand from './commands/delete';
 import echoCommand from './commands/echo';
 import lsCommand, { lsManageMenu } from './commands/ls';
 import postCommand from './commands/post';
-import randomCommand, { getValidRandomImage } from './commands/random';
+import randomCommand, { getRandomPicResponse, buildInlineKeyboard } from './commands/random';
 import restartCommand from './commands/restart';
 import stashCommand from './commands/stash';
 import submitCommand, { handleSubmit, submitMenu } from './commands/submit';
@@ -79,47 +78,14 @@ bot.callbackQuery(BotMenuName.RANDOM_PIC, async (ctx) => {
     // 先应答回调查询，避免按钮显示加载状态过久
     await ctx.answerCallbackQuery();
 
-    // 获取随机图片
-    const totalImages = await prisma.image.count({
-      where: {
-        r18: false,
-        thumburl: { not: null },
-      },
-    });
+    const response = await getRandomPicResponse();
 
-    if (totalImages === 0) {
-      logger.warn('数据库中没有可用的非 R18 图片');
-      return ctx.reply('抱歉，数据库中暂时没有可用的图片');
+    if (!response) {
+      return ctx.reply('抱歉，没有找到任何可用的图片，请稍后再试');
     }
 
-    logger.info(`数据库中共有 ${totalImages} 张可用的非 R18 图片`);
-
-    const validRandomImage = await getValidRandomImage(totalImages);
-
-    if (!validRandomImage) {
-      logger.error(`在多次尝试后未能获取到有效图片，用户：${userId}`);
-      return ctx.reply('抱歉，获取图片失败，请稍后再试');
-    }
-
-    const { image: randomImage, originUrl } = validRandomImage;
-    const { id, pid, thumburl, rawurl, platform } = randomImage;
-
-    logger.info(`随机选中图片 ID: ${id}, PID: ${pid}, 平台: ${platform}`);
-
-    // 构建消息文本
-    const messageText = await randomImageInfoCaption(randomImage);
-    const imageUrl = thumburl ?? rawurl ?? '';
-
-    if (!imageUrl) {
-      logger.error(`图片 ${pid} 没有有效的URL，platform: ${platform}`);
-      return ctx.reply('抱歉，该图片的链接无效，请再试一次');
-    }
-
-    // 构建按钮
-    const buttons: InlineKeyboardButton[] = [
-      { text: '🔄 再来一张', callback_data: BotMenuName.RANDOM_PIC },
-      { text: '🔗 原图链接', url: originUrl },
-    ];
+    const { messageText, imageUrl, originUrl, pid } = response;
+    const buttons = buildInlineKeyboard(originUrl);
 
     // 发送新的图片消息
     const result = await ctx.replyWithPhoto(imageUrl, {
@@ -141,6 +107,48 @@ bot.callbackQuery(BotMenuName.RANDOM_PIC, async (ctx) => {
       user: ctx.from?.username ?? ctx.from?.id,
     });
     return ctx.reply('获取随机图片时遇到了问题，请稍后再试');
+  }
+});
+
+// 处理 CHANGE_PIC 回调
+bot.callbackQuery(BotMenuName.CHANGE_PIC, async (ctx) => {
+  try {
+    const startTime = Date.now();
+    const userId = ctx.from?.username ?? ctx.from?.id;
+    logger.info(`用户 ${userId} 通过换一换按钮请求随机图片`);
+
+    // 先应答回调查询，避免按钮显示加载状态过久
+    await ctx.answerCallbackQuery();
+
+    const response = await getRandomPicResponse();
+
+    if (!response) {
+      return ctx.reply('抱歉，没有找到任何可用的图片，请稍后再试');
+    }
+
+    const { messageText, imageUrl, originUrl, pid } = response;
+    const buttons = buildInlineKeyboard(originUrl);
+
+    // 编辑当前消息
+    const result = await ctx.editMessageMedia(
+      {
+        type: 'photo',
+        media: imageUrl,
+        caption: messageText,
+        parse_mode: 'HTML',
+      },
+      {
+        reply_markup: {
+          inline_keyboard: [buttons],
+        },
+      },
+    );
+
+    logger.info(`成功更新随机图片 ${pid} 给用户 ${userId}，耗时 ${Date.now() - startTime}ms`);
+    return result;
+  } catch (error: any) {
+    logger.error('Change pic callback error:', error);
+    return ctx.reply('更新图片时出错了，请稍后再试');
   }
 });
 
