@@ -62,7 +62,7 @@ export async function randomImageInfoCaption(image: Image) {
       pid: pid,
     },
   });
-  const finalTags = tags?.length ? tags.map((t) => '#' + t.tag?.replace(/#/g, '')) : [];
+  const finalTags = tags?.length ? Array.from(new Set(tags.map((t) => '#' + t.tag?.replace(/#/g, '')))) : [];
   // 构建消息文本
   try {
     const messageText =
