@@ -16,7 +16,7 @@ export type PixivArtInfo = {
   raw_tags: string[];
   artist: Artist;
 };
-export default async function getPixivArtworkInfo(post_url: string): Promise<ArtworkInfo[]> {
+export default async function getPixivArtworkInfo(post_url: string, customTags?: string[]): Promise<ArtworkInfo[]> {
   const pixiv_id = path.basename(post_url);
   const {
     data: { body: illust },
@@ -76,6 +76,7 @@ export default async function getPixivArtworkInfo(post_url: string): Promise<Art
       url_origin: urls.original,
       size: size,
       raw_tags: rawTags,
+      custom_tags: customTags ?? [],
       extension: extension ?? 'jpg',
       r18: illust.xRestrict === 1,
       ai: illust.aiType === 2,

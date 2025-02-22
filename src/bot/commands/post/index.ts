@@ -16,7 +16,7 @@ const postCommand: CommandMiddleware<WrapperContext> = async (ctx: any) => {
   const hasOtherOpt = args?.length > 0 && !args[0]?.includes('#');
   const customTags = args.slice(hasOtherOpt ? 1 : 0);
 
-  const { state, msg, result: artworksInfo } = await getArtworks(url, CommandType.Post);
+  const { state, msg, result: artworksInfo } = await getArtworks(url, CommandType.Post, customTags);
 
   if (state === OperateState.Fail) return ctx.reply(msg ?? 'unknown error', { parse_mode: 'HTML' });
 

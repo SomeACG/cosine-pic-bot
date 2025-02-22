@@ -13,6 +13,7 @@ import { prisma } from './db';
 import { fsExistOrCreate } from './fs';
 import { compressImage } from './image';
 import logger from './logger';
+import { uniq } from 'es-toolkit';
 
 export function getDirByCmdType(cmdType?: CommandType) {
   if (cmdType === CommandType.Post) return DOWNLOAD_DIR;
@@ -136,7 +137,11 @@ export type GetArtWorkResult = {
   msg?: string;
   result?: ArtworkInfo[];
 };
-export async function getArtworks(url: string, cmdType: CommandType = CommandType.Echo): Promise<GetArtWorkResult> {
+export async function getArtworks(
+  url: string,
+  cmdType: CommandType = CommandType.Echo,
+  customTags?: string[],
+): Promise<GetArtWorkResult> {
   const artInfo = getArtInfoFromUrl(url);
   if (!artInfo?.pid) return { state: OperateState.Fail, msg: 'URL 出错了？未找到合适的图片' };
   const { pid, type } = artInfo;
@@ -155,12 +160,12 @@ export async function getArtworks(url: string, cmdType: CommandType = CommandTyp
     }
   }
   if (type === Platform.Pixiv) {
-    const artworks = await getPixivArtworkInfo(url);
+    const artworks = await getPixivArtworkInfo(url, customTags);
     return { state: OperateState.Success, result: artworks };
   }
 
   if (type === Platform.Twitter) {
-    const { state, result: artworks, msg } = await getTwitterArtworkInfo(url);
+    const { state, result: artworks, msg } = await getTwitterArtworkInfo(url, customTags);
     if (state === OperateState.Fail) {
       return { state, msg };
     }
@@ -209,21 +214,10 @@ export async function saveArtworkInfo(artworks: ArtworkInfo[], userInfo?: PostUs
       const tags: Prisma.ImageTagCreateManyInput[] = (raw_tags ?? []).concat(custom_tags ?? []).map((tag) => ({ tag, pid }));
       return prev.concat(tags);
     }, [] as Prisma.ImageTagCreateManyInput[]);
-
-    const uniqueTagsSet = new Set<string>();
-    const uniqueTags = tags
-      .filter((tag) => {
-        const key = `${tag.pid}-${tag.tag}`;
-        if (!uniqueTagsSet.has(key)) {
-          uniqueTagsSet.add(key);
-          return true;
-        }
-        return false;
-      })
-      .map(({ tag, ...rest }) => ({ ...rest, tag: '#' + tag })); // TODO: 保留和原数据库的一致性，后续需要重构这坨历史遗留数据
-
+    const uniqTags = uniq(tags);
+    logger.info('tags:' + JSON.stringify(tags) + ' uniqTags:' + JSON.stringify(uniqTags));
     await prisma.imageTag.createMany({
-      data: uniqueTags,
+      data: uniqTags,
     });
     logger.info('post createMany success, create ' + imageResults);
     return imageResults;

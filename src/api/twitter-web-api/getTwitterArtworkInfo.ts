@@ -5,6 +5,7 @@ import { getUrlFileExtension } from '@/utils/image';
 
 export default async function getTwitterArtworkInfo(
   post_url: string,
+  customTags?: string[],
 ): Promise<{ state: OperateState; msg?: string; result?: ArtworkInfo[] }> {
   const match = post_url.match(/status\/(\d+)/);
   const noFound = {
@@ -21,6 +22,7 @@ export default async function getTwitterArtworkInfo(
   // Remove t.co Links
   const desc = tweet.text.replace(/https:\/\/t.co\/(\w+)/, '');
   const photos = tweet?.media?.photos;
+  const raw_tags = desc.match(/#([\p{L}\p{N}_-]+)/gu) ?? [];
 
   if (!photos?.length) return noFound;
 
@@ -34,6 +36,8 @@ export default async function getTwitterArtworkInfo(
       url_thumb: photo.url + '?name=medium',
       url_origin: photo.url + '?name=orig',
       extension: getUrlFileExtension(photo.url) ?? 'jpg',
+      custom_tags: customTags ?? [],
+      raw_tags,
       size: {
         width: photo.width,
         height: photo.height,

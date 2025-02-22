@@ -1,5 +1,5 @@
 import { WrapperContext } from '@/bot/wrappers/command-wrapper';
-import { OperateState } from '@/constants/enum';
+import { CommandType, OperateState } from '@/constants/enum';
 import { getArtworks } from '@/utils/bot';
 import { CommandMiddleware } from 'grammy';
 import { parseOptions, processArtworks } from '../utils';
@@ -21,7 +21,7 @@ const echoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
   const hasOtherOpt = args?.length > 0 && !args[0]?.includes('#');
   const customTags = args.slice(hasOtherOpt ? 1 : 0);
 
-  const { state, msg, result: artworksInfo } = await getArtworks(url);
+  const { state, msg, result: artworksInfo } = await getArtworks(url, CommandType.Echo, customTags);
 
   if (state === OperateState.Fail) return ctx.reply(msg ?? 'unknown error', { parse_mode: 'HTML' });
 

@@ -4,6 +4,7 @@ import { Image } from '@prisma/client';
 import { prisma } from './db';
 import { Platform } from '@/constants/enum';
 import logger from './logger';
+import { uniq } from 'es-toolkit';
 
 function encodeHtmlChars(text: string) {
   return text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -28,13 +29,15 @@ export async function infoCmdCaption(artwork_info: ArtworkInfo, saveRes?: { id: 
     })}">${author}</a>\n`;
   }
   if (raw_tags?.length) {
+    const tags = uniq(raw_tags.map((t) => t.replace(/#/g, '')));
     caption += '<b>原始标签:</b> ';
-    caption += raw_tags.map((str) => `#${str}`).join(' ');
+    caption += tags.map((str) => `#${str}`).join(' ');
     caption += '\n';
   }
   if (custom_tags?.length) {
+    const tags = uniq(custom_tags.map((t) => t.replace(/#/g, '')));
     caption += '<b>自定义标签:</b> ';
-    caption += custom_tags.join(' ');
+    caption += tags.map((str) => `#${str}`).join(' ');
     caption += '\n';
   }
   caption += `<b>尺寸:</b> ${artwork_info.size.width}x${artwork_info.size.height}`;
@@ -62,7 +65,7 @@ export async function randomImageInfoCaption(image: Image) {
       pid: pid,
     },
   });
-  const finalTags = tags?.length ? Array.from(new Set(tags.map((t) => '#' + t.tag?.replace(/#/g, '')))) : [];
+  const finalTags = tags?.length ? uniq(tags).map((t) => '#' + t.tag?.replace(/#/g, '')) : [];
   // 构建消息文本
   try {
     const messageText =
