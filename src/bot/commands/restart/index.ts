@@ -15,10 +15,9 @@ const restartCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
   }
 
   try {
-    await ctx.wait('正在重启服务...');
-    await exec('pm2 restart cos-pic-db-sync');
-    await ctx.deleteWaiting();
-    return await ctx.reply('重启命令已成功执行');
+    await ctx.wait('正在重启 SomeACG-Next 服务...');
+    await exec('pm2 restart SomeACG-Next');
+    return await ctx.resolveWait('重启命令已成功执行');
   } catch (error: any) {
     return ctx.reply(`执行出错: ${error.message}`);
   }
