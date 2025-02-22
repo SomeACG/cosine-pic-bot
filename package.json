@@ -15,7 +15,6 @@
     "pm2:log": "pm2 log ecosystem.config.js",
     "test": "npx jest --runTestsByPath src/tests/twitter.test.ts",
     "db:convert": "node scripts/convertOldData.js && npx prisma generate",
-    "db:migrate-data": "node scripts/migrate-data.js",
     "change": "git cliff -o CHANGELOG.md"
   },
   "keywords": [],

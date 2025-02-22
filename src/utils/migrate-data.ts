@@ -90,8 +90,3 @@ export async function migrateData() {
     await prisma.$disconnect();
   }
 }
-
-migrateData().catch((e) => {
-  console.error('Migration failed:', e);
-  process.exit(1);
-});
