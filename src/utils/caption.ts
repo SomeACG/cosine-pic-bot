@@ -42,7 +42,7 @@ export async function infoCmdCaption(artwork_info: ArtworkInfo, saveRes?: { id: 
     ? saveRes.map((item) => `<a href="${`https://pic.cosine.ren/artwork/${item?.id ?? ''}`}">${item?.id}</a>`)
     : [];
   const refsStr = refs?.length ? refs.join(', ') : '';
-  caption += `\n@CosineGallery | <a href="https://pic.cosine.ren/">网站</a>${refsStr ? `| ${refsStr}` : ''}`;
+  caption += `\n@CosineGallery | <a href="https://pic.cosine.ren/">网站</a>${refsStr ? ` | ${refsStr}` : ''}`;
 
   return caption;
 }
