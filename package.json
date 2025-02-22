@@ -15,6 +15,7 @@
     "pm2:log": "pm2 log ecosystem.config.js",
     "test": "npx jest --runTestsByPath src/tests/twitter.test.ts",
     "db:convert": "node scripts/convertOldData.js && npx prisma generate",
+    "db:migrate-data": "node scripts/migrate-data.js",
     "change": "git cliff -o CHANGELOG.md"
   },
   "keywords": [],
@@ -35,6 +36,7 @@
     "mime-types": "^2.1.35",
     "pino": "^8.17.2",
     "pino-pretty": "^10.3.1",
+    "sqlite": "^5.1.1",
     "sqlite3": "^5.1.7",
     "tough-cookie": "^4.1.4",
     "ts-node": "^10.9.2",

@@ -1,7 +1,7 @@
 import { WrapperContext } from '@/bot/wrappers/command-wrapper';
 import { CommandType, OperateState } from '@/constants/enum';
 import { getArtworks } from '@/utils/bot';
-import { backupDBToS3IfEnabled } from '@/utils/s3';
+// import { backupDBToS3IfEnabled } from '@/utils/s3';
 import { CommandMiddleware } from 'grammy';
 import { parseOptions, processArtworks } from '../utils';
 
@@ -24,7 +24,7 @@ const postCommand: CommandMiddleware<WrapperContext> = async (ctx: any) => {
 
   await processArtworks(ctx, artworksInfo, option, customTags, CommandType.Post);
 
-  await backupDBToS3IfEnabled(ctx);
+  // await backupDBToS3IfEnabled(ctx);
   return await ctx.deleteWaiting();
 };
 
