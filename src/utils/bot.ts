@@ -178,6 +178,14 @@ export async function getArtworks(
 export async function saveArtworkInfo(artworks: ArtworkInfo[], userInfo?: PostUserInfo) {
   try {
     if (!artworks?.length) return;
+
+    // // 重置 PostgreSQL 序列 迁移后第一次调用
+    // await prisma.$transaction([
+    //   prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('images', 'id'), coalesce((SELECT MAX(id) FROM images), 0) + 1, false)`,
+    //   prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('imagetags', 'id'), coalesce((SELECT MAX(id) FROM imagetags), 0) + 1, false)`,
+    //   prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('stash', 'id'), coalesce((SELECT MAX(id) FROM stash), 0) + 1, false)`,
+    // ]);
+
     // SQLite 不支持 createMany，会自动转换为多个 create 操作，所以都一样
     const imageResults = await Promise.all(
       artworks.map(async (artwork, idx) => {
@@ -201,9 +209,6 @@ export async function saveArtworkInfo(artworks: ArtworkInfo[], userInfo?: PostUs
             thumburl: url_thumb,
             r18,
             ai,
-          },
-          select: {
-            id: true,
           },
         });
       }),

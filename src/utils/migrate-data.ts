@@ -81,6 +81,15 @@ export async function migrateData() {
       skipDuplicates: true,
     });
 
+    // 重置所有表的序列
+    console.log('Resetting sequences...');
+
+    await prisma.$transaction([
+      prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('images', 'id'), coalesce((SELECT MAX(id) FROM images), 0) + 1, false)`,
+      prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('imagetags', 'id'), coalesce((SELECT MAX(id) FROM imagetags), 0) + 1, false)`,
+      prisma.$executeRaw`SELECT setval(pg_get_serial_sequence('stash', 'id'), coalesce((SELECT MAX(id) FROM stash), 0) + 1, false)`,
+    ]);
+
     console.log('Migration completed successfully');
   } catch (error) {
     console.error('Migration error:', error);

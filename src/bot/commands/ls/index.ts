@@ -13,7 +13,7 @@ export const lsManageMenu = new Menu<WrapperContext>(BotMenuName.LS_MANAGE, {
     for (let i = 0; i < res.length; i++) {
       const item = res[i];
       range
-        .text(item?.id + '' ?? '', (ctx) => ctx.reply(`您选择了: ${item?.original_msg}`))
+        .text(item?.id + '', (ctx) => ctx.reply(`您选择了: ${item?.original_msg}`))
         .text('✅', (ctx) => {
           try {
             ctx.editMessageText(`<code>/post ${item?.original_msg}</code>\n${item?.id}: ${item?.original_msg}`, {
