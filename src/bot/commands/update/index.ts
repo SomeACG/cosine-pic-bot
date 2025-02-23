@@ -31,7 +31,7 @@ const updateCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
     // 拉取最新代码
     if ([UpdateType.All, UpdateType.Api].includes(updateType)) {
       await ctx.resolveWait('正在拉取 SomeACG-Next 最新代码...');
-      await exec('cd /root/code/SomeACG-Next && git pull -f && pm2 restart cos-pic-db-sync');
+      await exec('cd /root/code/SomeACG-Next && git pull -f && pm2 restart SomeACG-Next');
       await ctx.reply('SomeACG-Next 更新完成！');
     }
     if ([UpdateType.All, UpdateType.Bot].includes(updateType)) {
