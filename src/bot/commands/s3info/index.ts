@@ -13,33 +13,69 @@ import { CommandMiddleware } from 'grammy';
 async function getFilesForPlatform(
   platform: Platform,
   targetDate?: Date,
-): Promise<Array<{ key: string; size: number; lastModified: Date }>> {
-  const command = new ListObjectsV2Command({
-    Bucket: S3_BUCKET_NAME,
-    Prefix: `${S3_OUTPUT_DIR}/${platform}/`,
-    MaxKeys: 1000,
-  });
-
-  const response = await s3.send(command);
+): Promise<Array<{ key: string; size: number; lastModified: Date }> & { totalCount: number }> {
   const files: Array<{ key: string; size: number; lastModified: Date }> = [];
+  let continuationToken: string | undefined;
+  let pageCount = 0;
+  let totalFileCount = 0;
 
-  if (response.Contents) {
-    response.Contents.forEach((item) => {
-      if (!item.Key || !item.LastModified || !item.Size) return;
+  logger.info(`开始获取平台 ${platform} ${targetDate ? format(targetDate, 'yyyy-MM-dd') : '今日'} 的文件`);
 
-      // 如果提供了目标日期，检查是否为目标日期上传，否则检查是否为今日上传
-      if (targetDate ? isSameDay(item.LastModified, targetDate) : isToday(item.LastModified)) {
-        files.push({
-          key: item.Key,
-          size: item.Size,
-          lastModified: item.LastModified,
-        });
-      }
+  do {
+    pageCount++;
+    logger.info(`正在获取平台 ${platform} 的第 ${pageCount} 页数据...`);
+
+    const command = new ListObjectsV2Command({
+      Bucket: S3_BUCKET_NAME,
+      Prefix: `${S3_OUTPUT_DIR}/${platform}/`,
+      MaxKeys: 1000,
+      ContinuationToken: continuationToken,
     });
-  }
+
+    const response = await s3.send(command);
+
+    const pageFileCount = response.Contents?.length || 0;
+    totalFileCount += pageFileCount;
+    logger.info(`平台 ${platform} 第 ${pageCount} 页返回 ${pageFileCount} 个文件`);
+
+    let matchedCount = 0;
+    if (response.Contents) {
+      response.Contents.forEach((item) => {
+        if (!item.Key || !item.LastModified || !item.Size) return;
+
+        // 如果提供了目标日期，检查是否为目标日期上传，否则检查是否为今日上传
+        if (targetDate ? isSameDay(item.LastModified, targetDate) : isToday(item.LastModified)) {
+          files.push({
+            key: item.Key,
+            size: item.Size,
+            lastModified: item.LastModified,
+          });
+          matchedCount++;
+        }
+      });
+    }
+
+    logger.info(`平台 ${platform} 第 ${pageCount} 页中匹配日期条件的文件: ${matchedCount} 个`);
+
+    // 更新令牌用于获取下一页
+    continuationToken = response.NextContinuationToken;
+
+    if (continuationToken) {
+      logger.info(`平台 ${platform} 存在更多数据，将继续获取下一页`);
+    }
+  } while (continuationToken); // 当没有下一页的令牌时停止循环
+
+  logger.info(
+    `平台 ${platform} 共获取 ${pageCount} 页数据，存储桶总文件数: ${totalFileCount}，符合条件的文件数: ${files.length}`,
+  );
 
   // 按最后修改时间排序（最新的在前）
-  return files.sort((a, b) => b.lastModified.getTime() - a.lastModified.getTime());
+  const result = files.sort((a, b) => b.lastModified.getTime() - a.lastModified.getTime());
+
+  // 添加总数属性
+  Object.defineProperty(result, 'totalCount', { value: totalFileCount });
+
+  return result as Array<{ key: string; size: number; lastModified: Date }> & { totalCount: number };
 }
 
 const s3InfoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
@@ -58,7 +94,7 @@ const s3InfoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
 
   // 显示S3配置信息
   const dateDisplay = targetDate ? format(targetDate, 'yyyy-MM-dd') : '今日';
-  await ctx.wait(`正在获取 ${dateDisplay} 的S3上传信息...`);
+  await ctx.wait(`正在获取${dateDisplay}的 S3 上传信息...`);
 
   //   // 构建配置信息消息
   //   const configMessage = `
@@ -78,14 +114,15 @@ const s3InfoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
     return ctx.reply('S3 配置不完整，无法进行连接测试。');
   }
 
-  await ctx.resolveWait(`正在测试 S3 连接并获取 ${dateDisplay} 的上传数据...`);
+  await ctx.resolveWait(`正在测试 S3 连接并获取${dateDisplay}的上传数据...`);
 
   try {
     // 按平台分类上传的图片
-    const platformFiles: Record<Platform, Array<{ key: string; size: number; lastModified: Date }>> = {
-      [Platform.Pixiv]: [],
-      [Platform.Twitter]: [],
-    };
+    const platformFiles: Record<Platform, Array<{ key: string; size: number; lastModified: Date }> & { totalCount?: number }> =
+      {
+        [Platform.Pixiv]: [],
+        [Platform.Twitter]: [],
+      };
 
     // 分别获取每个平台的数据
     try {
@@ -104,9 +141,10 @@ const s3InfoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
 
     // 计算总上传数量
     const totalFiles = platformFiles[Platform.Pixiv].length + platformFiles[Platform.Twitter].length;
+    const totalS3Files = (platformFiles[Platform.Pixiv].totalCount || 0) + (platformFiles[Platform.Twitter].totalCount || 0);
 
     if (totalFiles === 0) {
-      return ctx.resolveWait(`连接测试成功! ✅\n\n${dateDisplay} 无任何上传。`);
+      return ctx.resolveWait(`连接测试成功! ✅\n\n${dateDisplay}无任何上传。\nS3 存储桶总文件数: ${totalS3Files}`);
     }
 
     // 构建结果消息
@@ -115,9 +153,11 @@ const s3InfoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
     // 添加每个平台的统计信息
     for (const platform of Object.values(Platform)) {
       const files = platformFiles[platform];
+      const platformTotalFiles = files.totalCount || 0;
 
       resultMessage += `【${platform}】平台:\n`;
-      resultMessage += `${dateDisplay} 上传: ${files.length} 张图片\n`;
+      resultMessage += `存储桶总文件数: ${platformTotalFiles} 张图片\n`;
+      resultMessage += `${dateDisplay}上传: ${files.length} 张图片\n`;
 
       if (files.length > 0) {
         resultMessage += `最近 5 张图片:\n`;
@@ -134,7 +174,8 @@ const s3InfoCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
     }
 
     // 添加总计
-    resultMessage += `${dateDisplay}总上传数量: ${totalFiles} 张图片`;
+    resultMessage += `${dateDisplay}总上传数量: ${totalFiles} 张图片\n`;
+    resultMessage += `S3 存储桶总文件数: ${totalS3Files} 张图片`;
 
     return ctx.resolveWait(resultMessage);
   } catch (error: any) {
