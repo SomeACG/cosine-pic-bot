@@ -13,6 +13,7 @@ import postCommand from './commands/post';
 import randomCommand, { getRandomPicResponse, buildInlineKeyboard } from './commands/random';
 import restartCommand from './commands/restart';
 import s3InfoCommand from './commands/s3info';
+import s3UploadCommand from './commands/s3upload';
 import stashCommand from './commands/stash';
 import submitCommand, { handleSubmit, submitMenu } from './commands/submit';
 import updateCommand from './commands/update';
@@ -44,7 +45,8 @@ const commands = [
   },
   { command: 'random', description: '随机返回一张图片' },
   { command: 'compress', description: '(admin) 压缩 /download 目录下的图片并保存到 /output 目录' },
-  { command: 's3info', description: '(admin) 显示S3配置信息并测试S3连接' },
+  { command: 's3info', description: '(admin) 显示 S3 配置信息并测试 S3 连接，可选参数: YYYY-MM-DD' },
+  { command: 's3upload', description: '(admin) 将 output 目录下的 pixiv 和 twitter 图片上传到 S3' },
   // { command: 'tag', description: '(admin) 给图片补 tag，回复图片消息或者带着 url，形式为  /tag [?url] #tag1 #tag2' },
   // { command: 'mark_dup', description: '(admin) 标记该图片已被发送过，形式为 /mark_dup url ' },
   // { command: 'unmark_dup', description: '(admin) 在频道评论区回复，形式为 /unmark_dup url ' },
@@ -70,6 +72,7 @@ bot.command('update', authGuard, updateCommand);
 bot.command('random', randomCommand);
 bot.command('compress', authGuard, compressCommand);
 bot.command('s3info', authGuard, s3InfoCommand);
+bot.command('s3upload', authGuard, s3UploadCommand);
 
 // 设置命令
 bot.api.setMyCommands(commands);
