@@ -131,10 +131,10 @@ dist
 
 
 # else
-downloads/
 download/
 temp/
 thumb/
+output/
 old/
 .DS_Store
 data.db

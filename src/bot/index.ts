@@ -15,6 +15,7 @@ import restartCommand from './commands/restart';
 import stashCommand from './commands/stash';
 import submitCommand, { handleSubmit, submitMenu } from './commands/submit';
 import updateCommand from './commands/update';
+import compressCommand from './commands/compress';
 import authGuard from './guards/authGuard';
 import { WrapperContext } from './wrappers/command-wrapper';
 
@@ -41,6 +42,7 @@ const commands = [
     description: '(admin) 更新代码并重启服务，默认为都更新 传 /update api 只更新 api(SomeACG-Next) 传 /update bot 只更新 bot',
   },
   { command: 'random', description: '随机返回一张图片' },
+  { command: 'compress', description: '(admin) 压缩 /download 目录下的图片并保存到 /output 目录' },
   // { command: 'tag', description: '(admin) 给图片补 tag，回复图片消息或者带着 url，形式为  /tag [?url] #tag1 #tag2' },
   // { command: 'mark_dup', description: '(admin) 标记该图片已被发送过，形式为 /mark_dup url ' },
   // { command: 'unmark_dup', description: '(admin) 在频道评论区回复，形式为 /unmark_dup url ' },
@@ -64,6 +66,7 @@ bot.command('ls', authGuard, lsCommand);
 bot.command('restart', authGuard, restartCommand);
 bot.command('update', authGuard, updateCommand);
 bot.command('random', randomCommand);
+bot.command('compress', authGuard, compressCommand);
 
 // 设置命令
 bot.api.setMyCommands(commands);
