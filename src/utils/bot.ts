@@ -97,7 +97,7 @@ export async function downloadFileArray(
   cmdType: CommandType = CommandType.Echo,
 ): Promise<string[]> {
   const promises = artworksInfo.map(({ pid, url_origin, source_type, extension }, idx) => {
-    const fileName = source_type === Platform.Twitter ? `${pid}_${idx}.${extension}` : undefined;
+    const fileName = source_type === Platform.Twitter ? `${pid}_${idx + 1}.${extension}` : undefined;
     return downloadFile({
       url: url_origin,
       platform: source_type,
