@@ -1,7 +1,6 @@
-import { ENABLE_S3_BACKUP, S3_BUCKET_NAME, S3_ENDPOINT, S3_PUBLIC_URL, S3_REGION } from '@/constants';
+import { S3_BUCKET_NAME, S3_ENDPOINT, S3_REGION } from '@/constants';
 import { PutObjectCommand, S3Client } from '@aws-sdk/client-s3';
 import mimeTypes from 'mime-types';
-import fs from 'fs';
 
 // 配置 S3
 export const s3 = new S3Client({
@@ -54,21 +53,21 @@ export async function uploadS3(file: string | Buffer, key: string) {
   }
 }
 
-export async function backupDBToS3IfEnabled(ctx: any) {
-  // 上传数据库文件到 S3 备份
-  if (ENABLE_S3_BACKUP) {
-    try {
-      const dbFile = fs.readFileSync('prisma/data.db');
-      await uploadS3(dbFile, 'data.db');
-      const s3Path = `${S3_PUBLIC_URL}/data.db`;
-      await ctx.reply(`数据库备份已上传至 [S3 ☁️](${s3Path})`, { parse_mode: 'MarkdownV2' });
-    } catch (error: any) {
-      console.error('上传数据库文件失败:', error);
-      await ctx.reply(`数据库备份上传失败 ❌, 错误: \`\`\`\n${error?.message ?? '未知错误'}\n\`\`\``, {
-        parse_mode: 'MarkdownV2',
-      });
-    }
-  }
-}
+// export async function backupDBToS3IfEnabled(ctx: any) {
+//   // 上传数据库文件到 S3 备份
+//   if (ENABLE_S3_BACKUP) {
+//     try {
+//       const dbFile = fs.readFileSync('prisma/data.db');
+//       await uploadS3(dbFile, 'data.db');
+//       const s3Path = `${S3_PUBLIC_URL}/data.db`;
+//       await ctx.reply(`数据库备份已上传至 [S3 ☁️](${s3Path})`, { parse_mode: 'MarkdownV2' });
+//     } catch (error: any) {
+//       console.error('上传数据库文件失败:', error);
+//       await ctx.reply(`数据库备份上传失败 ❌, 错误: \`\`\`\n${error?.message ?? '未知错误'}\n\`\`\``, {
+//         parse_mode: 'MarkdownV2',
+//       });
+//     }
+//   }
+// }
 
 export default s3;

@@ -38,7 +38,7 @@ const compressCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
   const pixivDir = path.join(DOWNLOAD_DIR, Platform.Pixiv);
   const twitterDir = path.join(DOWNLOAD_DIR, Platform.Twitter);
 
-  await ctx.wait('开始压缩图片...');
+  await ctx.resolveWait('开始压缩图片...');
   // resolveWait progress 不要太频繁
   // 压缩Pixiv图片
   const pixivStats = await compressImages(pixivDir, outputPixivDir, Platform.Pixiv, ctx);
