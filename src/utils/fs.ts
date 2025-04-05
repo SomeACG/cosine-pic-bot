@@ -1,5 +1,6 @@
 import fs from 'fs';
 import logger from './logger';
+import path from 'path';
 
 export const fsExistOrCreate = (dirPath?: string) => {
   if (!dirPath) return false;
@@ -15,3 +16,20 @@ export const fsExistOrCreate = (dirPath?: string) => {
     return false;
   }
 };
+
+/**
+ * 清理目录中的所有文件
+ * @param directory 要清理的目录路径
+ */
+export function clearDirectory(directory: string): void {
+  if (fs.existsSync(directory)) {
+    const files = fs.readdirSync(directory);
+    for (const file of files) {
+      const filePath = path.join(directory, file);
+      if (fs.statSync(filePath).isFile()) {
+        fs.unlinkSync(filePath);
+        logger.info(`已删除文件: ${filePath}`);
+      }
+    }
+  }
+}

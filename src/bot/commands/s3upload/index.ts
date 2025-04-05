@@ -1,11 +1,12 @@
 import { WrapperContext } from '@/bot/wrappers/command-wrapper';
-import { ENABLE_S3_BACKUP, S3_BUCKET_NAME, S3_ENDPOINT, S3_OUTPUT_DIR } from '@/constants';
+import { DOWNLOAD_DIR, ENABLE_S3_BACKUP, S3_BUCKET_NAME, S3_ENDPOINT, S3_OUTPUT_DIR } from '@/constants';
 import logger from '@/utils/logger';
 import { uploadS3 } from '@/utils/s3';
 import { CommandMiddleware } from 'grammy';
 import fs from 'fs';
 import path from 'path';
 import { Platform } from '@/constants/enum';
+import { clearDirectory } from '@/utils/fs';
 
 // 定义平台统计类型
 type PlatformStat = {
@@ -138,7 +139,16 @@ const s3UploadCommand: CommandMiddleware<WrapperContext> = async (ctx) => {
       logger.error(`上传失败: ${fileName}`, error);
     }
   }
-
+  try {
+    const downloadDir = DOWNLOAD_DIR;
+    const downloadPixivDir = path.join(downloadDir, Platform.Pixiv);
+    const downloadTwitterDir = path.join(downloadDir, Platform.Twitter);
+    clearDirectory(downloadPixivDir);
+    clearDirectory(downloadTwitterDir);
+    logger.info('清理下载目录完成');
+  } catch (error) {
+    logger.error('清理下载目录失败', error);
+  }
   // 构建上传结果消息
   const resultMessage = `上传完成!
 总计:

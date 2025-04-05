@@ -1,7 +1,7 @@
 import { WrapperContext } from '@/bot/wrappers/command-wrapper';
 import { DOWNLOAD_DIR } from '@/constants';
 import { Platform } from '@/constants/enum';
-import { fsExistOrCreate } from '@/utils/fs';
+import { clearDirectory, fsExistOrCreate } from '@/utils/fs';
 import { getFileSize } from '@/utils/image';
 import logger from '@/utils/logger';
 import { Transformer } from '@napi-rs/image';
@@ -81,23 +81,6 @@ Twitter:
 
   return ctx.resolveWait(message);
 };
-
-/**
- * 清理 output 目录中的所有文件
- * @param directory 要清理的目录路径
- */
-function clearDirectory(directory: string): void {
-  if (fs.existsSync(directory)) {
-    const files = fs.readdirSync(directory);
-    for (const file of files) {
-      const filePath = path.join(directory, file);
-      if (fs.statSync(filePath).isFile()) {
-        fs.unlinkSync(filePath);
-        logger.info(`已删除文件: ${filePath}`);
-      }
-    }
-  }
-}
 
 /**
  * 压缩指定目录下的所有图片
