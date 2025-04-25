@@ -13,13 +13,12 @@ function encodeHtmlChars(text: string) {
 
 export async function infoCmdCaption(artwork_info: ArtworkInfo, saveRes?: { id: number }[]) {
   const { title, desc, artist, raw_tags, post_url, custom_tags } = artwork_info;
-
   let caption = '';
   if (title) caption += `<b>${encodeHtmlChars(title)}</b>\n`;
   if (desc) caption += `<blockquote>${encodeHtmlChars(desc)}</blockquote>\n`;
-  if (artist) {
-    const id = saveRes?.[0]?.id;
-    let imageInfo: Image | null = null;
+  const id = saveRes?.[0]?.id;
+  let imageInfo: Image | null = null;
+  if (id) {
     try {
       const image = await prisma.image.findFirst({
         where: {
@@ -30,12 +29,17 @@ export async function infoCmdCaption(artwork_info: ArtworkInfo, saveRes?: { id: 
     } catch (error) {
       logger.warn('Error in find image info:' + error);
     }
-    const { platform, authorid, author } = imageInfo ?? {};
-    caption += `<a href="${post_url}">Source</a> by ${platform} <a href="${genArtistUrl(platform, {
-      uid: authorid?.toString() ?? '',
-      username: author ?? '',
-    })}">${author}</a>\n`;
   }
+
+  const { platform, authorid, author } = imageInfo ?? {
+    platform: artist?.type,
+    authorid: artist?.uid,
+    author: artist?.username ?? artist?.name ?? '',
+  };
+  caption += `<a href="${post_url}">Source</a> by ${platform} <a href="${genArtistUrl(platform, {
+    uid: authorid?.toString() ?? '',
+    username: author ?? '',
+  })}">${author}</a>\n`;
   if (raw_tags?.length) {
     const tags = uniq(raw_tags.map((t) => t.replace(/#/g, '')));
     caption += '<b>原始标签:</b> ';
