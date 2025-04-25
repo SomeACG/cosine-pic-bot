@@ -13,17 +13,24 @@ function encodeHtmlChars(text: string) {
 
 export async function infoCmdCaption(artwork_info: ArtworkInfo, saveRes?: { id: number }[]) {
   const { title, desc, artist, raw_tags, post_url, custom_tags } = artwork_info;
-  const id = saveRes?.[0]?.id;
-  const image = await prisma.image.findFirst({
-    where: {
-      id,
-    },
-  });
+
   let caption = '';
   if (title) caption += `<b>${encodeHtmlChars(title)}</b>\n`;
   if (desc) caption += `<blockquote>${encodeHtmlChars(desc)}</blockquote>\n`;
   if (artist) {
-    const { platform, authorid, author } = image ?? {};
+    const id = saveRes?.[0]?.id;
+    let imageInfo: Image | null = null;
+    try {
+      const image = await prisma.image.findFirst({
+        where: {
+          id,
+        },
+      });
+      imageInfo = image;
+    } catch (error) {
+      logger.warn('Error in find image info:' + error);
+    }
+    const { platform, authorid, author } = imageInfo ?? {};
     caption += `<a href="${post_url}">Source</a> by ${platform} <a href="${genArtistUrl(platform, {
       uid: authorid?.toString() ?? '',
       username: author ?? '',
