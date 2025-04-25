@@ -1,10 +1,11 @@
 import { genArtistUrl, genArtworkUrl } from '@/bot/commands/utils/image';
+import { CHANNEL_INFO_NAME, CHANNEL_INFO_URL, SHOW_CHANNEL_INFO } from '@/constants';
+import { Platform } from '@/constants/enum';
 import { ArtworkInfo } from '@/types/Artwork';
 import { Image } from '@prisma/client';
-import { prisma } from './db';
-import { Platform } from '@/constants/enum';
-import logger from './logger';
 import { uniq } from 'es-toolkit';
+import { prisma } from './db';
+import logger from './logger';
 
 function encodeHtmlChars(text: string) {
   return text.replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -41,12 +42,16 @@ export async function infoCmdCaption(artwork_info: ArtworkInfo, saveRes?: { id: 
     caption += '\n';
   }
   caption += `<b>尺寸:</b> ${artwork_info.size.width}x${artwork_info.size.height}`;
-  const refs = saveRes?.length
-    ? saveRes.map((item) => `<a href="${`https://pic.cosine.ren/artwork/${item?.id ?? ''}`}">${item?.id}</a>`)
-    : [];
-  const refsStr = refs?.length ? refs.join(', ') : '';
-  caption += `\n@CosineGallery | <a href="https://pic.cosine.ren/">网站</a>${refsStr ? ` | ${refsStr}` : ''}`;
-
+  if (SHOW_CHANNEL_INFO) {
+    const refs =
+      CHANNEL_INFO_URL && saveRes?.length
+        ? saveRes.map((item) => `<a href="${`${CHANNEL_INFO_URL}/artwork/${item?.id ?? ''}`}">${item?.id}</a>`)
+        : [];
+    const refsStr = refs?.length ? refs.join(', ') : '';
+    caption += `\n${CHANNEL_INFO_NAME ? `${CHANNEL_INFO_NAME} | ` : ''}<a href="${CHANNEL_INFO_URL}">网站</a>${
+      refsStr ? ` | ${refsStr}` : ''
+    }`;
+  }
   return caption;
 }
 
@@ -73,7 +78,9 @@ export async function randomImageInfoCaption(image: Image) {
       `<a href="${originUrl}">Source</a> by ${platform} <a href="${authorUrl}">${author}</a>\n` +
       (finalTags?.length ? `原始标签：${finalTags.join(' ')}\n` : '') +
       `<b>尺寸:</b>${width}x${height}\n` +
-      `@CosineGallery | <a href="https://pic.cosine.ren/artwork/${id}">本图链接</a>`;
+      SHOW_CHANNEL_INFO
+        ? `${CHANNEL_INFO_NAME ? `${CHANNEL_INFO_NAME} | ` : ''}<a href="${CHANNEL_INFO_URL}/artwork/${id}">本图链接</a>`
+        : '';
     logger.info('info:' + JSON.stringify({ tags, finalTags, author, platform, pid, width, height, authorUrl, title }));
     logger.info('messageText:' + messageText);
     return messageText;
