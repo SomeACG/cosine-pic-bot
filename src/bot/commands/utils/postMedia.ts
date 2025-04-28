@@ -71,7 +71,7 @@ export async function postMedia({
   const thumbFiles = originFileNames.map((item) => new InputFile(path.resolve(THUMB_DIR, platform, item)));
 
   const thumbMedias = thumbFiles.map((file, idx) =>
-    InputMediaBuilder.photo(file, idx === 0 ? { caption, parse_mode: 'HTML' } : {}),
+    InputMediaBuilder.photo(file, idx === 0 ? { has_spoiler: artworks[0]?.r18, caption, parse_mode: 'HTML' } : {}),
   );
   const originMedias = originFiles.map((file) => InputMediaBuilder.document(file));
 
