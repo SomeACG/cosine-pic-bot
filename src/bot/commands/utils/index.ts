@@ -6,6 +6,8 @@ import { postMedia } from './postMedia';
 import { CommandType } from '@/constants/enum';
 import { saveArtworkInfo } from '@/utils/bot';
 import { PostUserInfo } from '@/types/User';
+import { searchIndexUpdater } from '@/utils/search-index';
+import logger from '@/utils/logger';
 
 // Helper function to parse options from arguments
 export const parseOptions = (args?: string[]): { batch: number; page: number; batchSize: number } => {
@@ -44,7 +46,26 @@ export const processArtworks = async (
     };
     // console.log('======= userInfo =======\n', userInfo);
     let saveRes;
-    if ([CommandType.Post, CommandType.Submit].includes(cmdType)) saveRes = await saveArtworkInfo(artworksInfo, userInfo);
+    if ([CommandType.Post, CommandType.Submit].includes(cmdType)) {
+      saveRes = await saveArtworkInfo(artworksInfo, userInfo);
+
+      // 新图片添加后，异步更新搜索索引
+      if (saveRes && searchIndexUpdater.isEnabled()) {
+        // 异步执行，不阻塞主流程
+        searchIndexUpdater
+          .syncRecentImages(1)
+          .then((success) => {
+            if (success) {
+              logger.info('搜索索引更新成功');
+            } else {
+              logger.warn('搜索索引更新失败，请检查日志');
+            }
+          })
+          .catch((error) => {
+            logger.error('搜索索引更新异常:', error);
+          });
+      }
+    }
 
     const commonOpts = { ctx, customTags, option, totalPage, cmdType, userInfo, saveRes };
     if (!batch) {

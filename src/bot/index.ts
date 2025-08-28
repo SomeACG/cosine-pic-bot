@@ -18,6 +18,7 @@ import stashCommand from './commands/stash';
 import submitCommand, { handleSubmit, submitMenu } from './commands/submit';
 import updateCommand from './commands/update';
 import compressCommand from './commands/compress';
+import searchCommand from './commands/search';
 import authGuard from './guards/authGuard';
 import { WrapperContext } from './wrappers/command-wrapper';
 
@@ -47,6 +48,7 @@ const commands = [
   { command: 'compress', description: '(admin) 压缩 /download 目录下的图片并保存到 /output 目录' },
   { command: 's3info', description: '(admin) 显示 S3 配置信息并测试 S3 连接，可选参数: YYYY-MM-DD' },
   { command: 's3upload', description: '(admin) 将 output 目录下的 pixiv 和 twitter 图片上传到 S3' },
+  { command: 'search', description: '(admin) 搜索索引管理，形式为 /search [status|sync|rebuild] [参数]' },
   // { command: 'tag', description: '(admin) 给图片补 tag，回复图片消息或者带着 url，形式为  /tag [?url] #tag1 #tag2' },
   // { command: 'mark_dup', description: '(admin) 标记该图片已被发送过，形式为 /mark_dup url ' },
   // { command: 'unmark_dup', description: '(admin) 在频道评论区回复，形式为 /unmark_dup url ' },
@@ -73,6 +75,7 @@ bot.command('random', randomCommand);
 bot.command('compress', authGuard, compressCommand);
 bot.command('s3info', authGuard, s3InfoCommand);
 bot.command('s3upload', authGuard, s3UploadCommand);
+bot.command('search', authGuard, searchCommand);
 
 // 设置命令
 bot.api.setMyCommands(commands);
