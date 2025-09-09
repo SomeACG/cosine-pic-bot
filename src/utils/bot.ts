@@ -68,11 +68,10 @@ export async function downloadFile({
   cmdType?: CommandType;
 }): Promise<string> {
   fileName = fileName ? fileName : path.basename(new URL(url)?.pathname);
-  logger.info('Start download file ' + fileName);
+  logger.info('Start download file ' + fileName + ' url: ' + url);
   const dir = getDirByCmdType(cmdType);
   const dirPath = path.join(dir, platform);
   const filePath = path.join(dirPath, fileName);
-
   const response = await axios.get(url, {
     responseType: 'arraybuffer',
     headers: {
